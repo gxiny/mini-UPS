@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	worldAddr     = flag.String("world", ":12345", "address of the world simulator")
+	simAddr     = flag.String("sim", ":12345", "address of the world simulator")
+	worldId     = flag.Uint("world", 0, "ID of world to connect (0 = create a new world)")
 	numTrucksInit = flag.Int("truck", 1, "number of initial trucks")
 )
 
@@ -28,13 +29,17 @@ type rw struct {
 func main() {
 	flag.Parse()
 
-	conn, err := net.Dial("tcp", *worldAddr)
+	conn, err := net.Dial("tcp", *simAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer conn.Close()
 	rw := &rw{conn, bufio.NewReader(conn)}
-	createWorld(rw, *numTrucksInit)
+	if *worldId == 0 {
+		createWorld(rw, *numTrucksInit)
+	} else {
+		connectWorld(rw, *worldId)
+	}
 	disconnect(rw)
 }
 
@@ -60,6 +65,22 @@ func createWorld(conn *rw, numTrucksInit int) {
 		}
 		fmt.Println(r)
 	}
+}
+
+func connectWorld(conn *rw, worldId uint) {
+	c := &ups.Connect{
+		ReconnectId: proto.Int64(int64(worldId)),
+	}
+	_, err := pb.WriteProto(conn, c)
+	if err != nil {
+		log.Fatal(err)
+	}
+	r := new(ups.Connected)
+	_, err = pb.ReadProto(conn, r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(r)
 }
 
 func disconnect(conn *rw) {
