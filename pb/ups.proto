@@ -1,0 +1,50 @@
+// Adopted from Drew's ups.proto for better naming
+
+message Connect {
+  optional int64 reconnect_id = 1;
+  optional int32 num_trucks_init = 2;
+}
+
+message Connected {
+  required int64 world_id = 1;
+  optional string error = 2;
+}
+message GoPickup {
+  required int32 truck_id = 1;
+  required int32 whid = 2;
+}
+
+message Finished {
+  required int32 truck_id = 1;
+  required int32 x = 2;
+  required int32 y = 3;
+}
+message DeliveryMade {
+  required int32 truck_id = 1;
+  required int64 package_id = 2;
+}
+
+message DeliveryLocation {
+  required int64 package_id = 1;
+  required int32 x = 2;
+  required int32 y = 3;
+}
+
+message GoDeliver {
+  required int32 truckid = 1;
+  repeated DeliveryLocation packages = 2;
+}
+
+message Commands {
+  repeated GoDeliver deliveries = 1;
+  repeated GoPickup pickups = 2;
+  optional uint32 sim_speed = 3; //units/minute
+  optional bool disconnect = 4; //after processing/sending replies, close
+}
+
+message Responses {
+  repeated Finished completions = 1;
+  repeated DeliveryMade delivered = 2;
+  optional string error = 3;
+  optional bool finished = 4;
+}
