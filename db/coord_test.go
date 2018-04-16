@@ -13,10 +13,6 @@ func TestCoordSQL(t *testing.T) {
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec(CoordSQL)
-	if err != nil {
-		t.Fatal(err)
-	}
 	s := Coord{1, -23}
 	err = tx.QueryRow(`SELECT $1::coordinate`, s).Scan(&s)
 	if err != nil {

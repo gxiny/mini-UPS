@@ -11,8 +11,6 @@ func TestCreateUser(t *testing.T) {
 	}
 	defer tx.Rollback()
 
-	InitSchemas(tx)
-
 	id, err := CreateUser(tx)
 	if err != nil {
 		t.Error(err)

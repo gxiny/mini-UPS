@@ -14,10 +14,10 @@ var AllSQL = [...]string{
 	PackageSQL,
 }
 
-// InitSchemas creates all schemas in the database.
+// InitSchema creates all objects in the database.
 // It should be called when connecting to a new (empty)
 // database.
-func InitSchemas(tx *sql.Tx) error {
+func InitSchema(tx *sql.Tx) error {
 	for _, sql := range AllSQL {
 		if _, err := tx.Exec(sql); err != nil {
 			return err
@@ -26,6 +26,22 @@ func InitSchemas(tx *sql.Tx) error {
 	return nil
 }
 
+const destroySQL = `
+DROP TABLE package;
+DROP TABLE truck;
+DROP TABLE "user";
+DROP TYPE coordinate;
+`
+
+// DestroySchema deletes all objects in the database.
+func DestroySchema(tx *sql.Tx) error {
+	_, err := tx.Exec(destroySQL)
+	return err
+}
+
+// WithTx encloses several database operations inside a transaction.
+// If the operations succeed, the transaction is committed.
+// Otherwise, it is rolled back.
 func WithTx(db *sql.DB, query func(*sql.Tx) error) error {
 	tx, err := db.Begin()
 	if err != nil {

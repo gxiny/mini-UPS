@@ -13,5 +13,17 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
+	err = WithTx(db, func(tx *sql.Tx) error {
+		return InitSchema(tx)
+	})
+	if err != nil {
+		panic(err)
+	}
 	m.Run()
+	err = WithTx(db, func(tx *sql.Tx) error {
+		return DestroySchema(tx)
+	})
+	if err != nil {
+		panic(err)
+	}
 }

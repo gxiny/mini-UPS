@@ -11,8 +11,6 @@ func TestCreateTruck(t *testing.T) {
 	}
 	defer tx.Rollback()
 
-	InitSchemas(tx)
-
 	err = CreateTruck(tx, 1, Coord{3, 4})
 	if err != nil {
 		t.Error(err)
