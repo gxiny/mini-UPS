@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.oit.duke.edu/rz78/ups/db"
 	_ "github.com/lib/pq"
+	"gitlab.oit.duke.edu/rz78/ups/db"
 )
 
 var (
 	database *sql.DB
-	server *Server
+	server   *Server
 )
 
 var dbOptions = flag.String("db", "dbname=test user=postgres password=passw0rd", "database options")
@@ -51,6 +51,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
+	server.NewWorld(10)
 	defer server.DisconnectWorld()
 	m.Run()
 }

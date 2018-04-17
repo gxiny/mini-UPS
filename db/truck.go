@@ -13,14 +13,14 @@ CREATE TABLE truck (
 
 // CreateTruck creates a new truck.
 // It should only be called when connecting to a new world.
-func CreateTruck(tx *sql.Tx, id int64, lastPos Coord) error {
+func CreateTruck(tx *sql.Tx, id int32, lastPos Coord) error {
 	sql := `INSERT INTO truck(id, last_pos) VALUES($1,$2)`
 	_, err := tx.Exec(sql, id, lastPos)
 	return err
 }
 
 // UpdateTruckPos update the last-known position of a truck.
-func UpdateTruckPos(tx *sql.Tx, id int64, pos Coord) error {
+func UpdateTruckPos(tx *sql.Tx, id int32, pos Coord) error {
 	sql := `UPDATE truck SET last_pos = $1 WHERE id = $2`
 	_, err := tx.Exec(sql, pos, id)
 	return err

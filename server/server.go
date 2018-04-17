@@ -17,7 +17,7 @@ type bufRW struct {
 
 func newBufRW(rw io.ReadWriteCloser) *bufRW {
 	return &bufRW{
-		Reader: bufio.NewReader(rw),
+		Reader:      bufio.NewReader(rw),
 		WriteCloser: rw,
 	}
 }
@@ -39,8 +39,8 @@ type Server struct {
 // objects from the stream.
 func New(db *sql.DB, world io.ReadWriteCloser) *Server {
 	return &Server{
-		db:     db,
-		world:  newBufRW(world),
+		db:    db,
+		world: newBufRW(world),
 	}
 }
 
@@ -75,4 +75,3 @@ func (s *Server) Stop() {
 	s.wg.Wait()
 	log.Println("Server stopped")
 }
-
