@@ -18,3 +18,10 @@ func CreateTruck(tx *sql.Tx, id int64, lastPos Coord) error {
 	_, err := tx.Exec(sql, id, lastPos)
 	return err
 }
+
+// UpdateTruckPos update the last-known position of a truck.
+func UpdateTruckPos(tx *sql.Tx, id int64, pos Coord) error {
+	sql := `UPDATE truck SET last_pos = $1 WHERE id = $2`
+	_, err := tx.Exec(sql, pos, id)
+	return err
+}
