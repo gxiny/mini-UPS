@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-var CoordSQL = sqlObject{
+var CoordType = sqlObject{
 	`TYPE`, `coordinate`, `AS (
 	x INTEGER,
 	y INTEGER

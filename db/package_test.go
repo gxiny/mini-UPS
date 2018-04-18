@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestCreatePackage(t *testing.T) {
+func TestPackageCreate(t *testing.T) {
 	tx, err := db.Begin()
 	if err != nil {
 		t.Fatal(err)

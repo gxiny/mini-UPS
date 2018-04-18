@@ -14,12 +14,12 @@ const (
 	DELIVERING   TruckStatus = "delivering"   // delivering packages
 )
 
-var truckStatus = sqlObject{
+var truckStatusType = sqlObject{
 	`TYPE`, `truck_status`,
 	`AS ENUM ('idle', 'to_warehouse', 'at_warehouse', 'delivering')`,
 }
 
-var TruckSQL = sqlObject{
+var TruckTable = sqlObject{
 	`TABLE`, `truck`, `(
 	id INTEGER PRIMARY KEY,
 	last_pos coordinate NOT NULL,

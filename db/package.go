@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-var PackageSQL = sqlObject{
+var PackageTable = sqlObject{
 	`TABLE`, `package`, `(
 	id BIGSERIAL PRIMARY KEY,
 	detail TEXT,

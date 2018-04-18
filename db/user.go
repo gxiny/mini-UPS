@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-var UserSQL = sqlObject{
+var UserTable = sqlObject{
 	`TABLE`, `user`, `(
 	id BIGSERIAL PRIMARY KEY
 )`}

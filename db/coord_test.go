@@ -6,7 +6,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func TestCoordSQL(t *testing.T) {
+func TestCoord(t *testing.T) {
 	tx, err := db.Begin()
 	if err != nil {
 		t.Fatal(err)
