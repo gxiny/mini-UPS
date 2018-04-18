@@ -10,13 +10,14 @@ import (
 )
 
 // NewWorld talks to the world simulator to create a new world.
-func (s *Server) NewWorld(initTrucks int32) (err error) {
-	_, err = s.connectWorld(&ups.Connect{
+func (s *Server) NewWorld(initTrucks int32) (worldId int64, err error) {
+	r, err := s.connectWorld(&ups.Connect{
 		NumTrucksInit: &initTrucks,
 	})
 	if err != nil {
 		return
 	}
+	worldId = r.GetWorldId()
 	err = s.createTrucks(initTrucks)
 	return
 }
