@@ -3,6 +3,7 @@
 package pb
 
 //go:generate protoc --go_out=ups ups.proto
+//go:generate protoc --go_out=bridge bridge.proto
 
 import (
 	"encoding/binary"
