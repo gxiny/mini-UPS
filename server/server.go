@@ -2,7 +2,6 @@ package server
 
 import (
 	"bufio"
-	"context"
 	"database/sql"
 	"io"
 	"log"
@@ -23,8 +22,6 @@ func newBufRW(rw io.ReadWriteCloser) *bufRW {
 }
 
 type Server struct {
-	ctx    context.Context
-	cancel context.CancelFunc
 	db     *sql.DB
 	ln     net.Listener
 	wg     sync.WaitGroup
@@ -46,7 +43,6 @@ func New(db *sql.DB, world io.ReadWriteCloser) *Server {
 
 // Start make the server start listening and accepting connections.
 func (s *Server) Start(listenAddr string) (err error) {
-	s.ctx, s.cancel = context.WithCancel(context.Background())
 	s.ln, err = net.Listen("tcp", listenAddr)
 	if err != nil {
 		return
@@ -71,7 +67,6 @@ func (s *Server) acceptConnections() {
 // all pending connections.
 func (s *Server) Stop() {
 	s.ln.Close()
-	s.cancel()
 	s.wg.Wait()
 	log.Println("Server stopped")
 }
