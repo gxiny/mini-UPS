@@ -3,8 +3,8 @@
 package db
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 )
 
 type sqlObject struct {
