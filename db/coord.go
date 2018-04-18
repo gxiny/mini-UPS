@@ -7,11 +7,11 @@ import (
 	"fmt"
 )
 
-const CoordSQL = `
-CREATE TYPE coordinate AS (
+var CoordSQL = sqlObject{
+	`TYPE`, `coordinate`, `AS (
 	x INTEGER,
 	y INTEGER
-);`
+)`}
 
 // Coord represents a coordinate in the world.
 type Coord struct {

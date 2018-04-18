@@ -3,11 +3,25 @@
 package db
 
 import (
+	"fmt"
 	"database/sql"
 )
 
-// AllSQL contains SQL definitions of all database objects in this package.
-var AllSQL = [...]string{
+type sqlObject struct {
+	Typ  string
+	Name string
+	Def  string
+}
+
+func (s sqlObject) CreateSQL() string {
+	return fmt.Sprintf(`CREATE %s "%s" %s`, s.Typ, s.Name, s.Def)
+}
+
+func (s sqlObject) DropSQL() string {
+	return fmt.Sprintf(`DROP %s "%s"`, s.Typ, s.Name)
+}
+
+var allSQL = [...]sqlObject{
 	CoordSQL,
 	UserSQL,
 	TruckSQL,
@@ -18,25 +32,22 @@ var AllSQL = [...]string{
 // It should be called when connecting to a new (empty)
 // database.
 func InitSchema(tx *sql.Tx) error {
-	for _, sql := range AllSQL {
-		if _, err := tx.Exec(sql); err != nil {
+	for _, obj := range allSQL {
+		if _, err := tx.Exec(obj.CreateSQL()); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-const destroySQL = `
-DROP TABLE package;
-DROP TABLE truck;
-DROP TABLE "user";
-DROP TYPE coordinate;
-`
-
 // DestroySchema deletes all objects in the database.
 func DestroySchema(tx *sql.Tx) error {
-	_, err := tx.Exec(destroySQL)
-	return err
+	for i := len(allSQL) - 1; i >= 0; i-- {
+		if _, err := tx.Exec(allSQL[i].DropSQL()); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // WithTx encloses several database operations inside a transaction.
