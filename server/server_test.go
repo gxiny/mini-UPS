@@ -30,19 +30,12 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	err = db.WithTx(database, func(tx *sql.Tx) error {
+		db.DestroySchema(tx)
 		return db.InitSchema(tx)
 	})
 	if err != nil {
 		panic(err)
 	}
-	defer func() { // no matter what, destroy the schema
-		err := db.WithTx(database, func(tx *sql.Tx) error {
-			return db.DestroySchema(tx)
-		})
-		if err != nil {
-			panic(err)
-		}
-	}()
 	world, err := net.Dial("tcp", worldSimAddr)
 	if err != nil {
 		panic(err)
@@ -51,7 +44,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	err = server.NewWorld(10)
+	_, err = server.NewWorld(10)
 	if err != nil {
 		panic(err)
 	}
