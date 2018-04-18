@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	dbOptions = flag.String("db", "dbname=test user=postgres password=passw0rd", "database options")
+	dbOptions = flag.String("db", "dbname=ups_server user=postgres password=passw0rd", "database options")
 	dbInit = flag.Bool("init", false, "init schema")
-	dbDestroy = flag.Bool("destroy", false, "destroy schema")
+	dbDrop = flag.Bool("drop", false, "drop schema")
 )
 
 func main() {
@@ -23,17 +23,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if *dbInit {
+	if *dbDrop {
 		err = db.WithTx(database, func(tx *sql.Tx) error {
-			return db.InitSchema(tx)
+			return db.DestroySchema(tx)
 		})
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
-	if *dbDestroy {
+	if *dbInit {
 		err = db.WithTx(database, func(tx *sql.Tx) error {
-			return db.DestroySchema(tx)
+			return db.InitSchema(tx)
 		})
 		if err != nil {
 			log.Fatal(err)
