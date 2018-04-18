@@ -18,10 +18,11 @@ func (s sqlObject) CreateSQL() string {
 }
 
 func (s sqlObject) DropSQL() string {
-	return fmt.Sprintf(`DROP %s "%s"`, s.Typ, s.Name)
+	return fmt.Sprintf(`DROP %s IF EXISTS "%s"`, s.Typ, s.Name)
 }
 
 var allSQL = [...]sqlObject{
+	metaTable,
 	CoordType,
 	UserTable,
 	truckStatusType,
