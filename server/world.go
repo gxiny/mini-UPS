@@ -1,13 +1,27 @@
 package server
 
 import (
+	"database/sql"
 	"errors"
 	"log"
+	"strconv"
 
 	"github.com/golang/protobuf/proto"
+	"gitlab.oit.duke.edu/rz78/ups/db"
 	"gitlab.oit.duke.edu/rz78/ups/pb"
 	"gitlab.oit.duke.edu/rz78/ups/pb/ups"
 )
+
+func (s *Server) GetWorldId() (worldId int64, err error) {
+	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
+		value, err := db.GetMeta(tx, "world_id")
+		if err == nil {
+			worldId, err = strconv.ParseInt(value, 10, 64)
+		}
+		return
+	})
+	return
+}
 
 // NewWorld talks to the world simulator to create a new world.
 func (s *Server) NewWorld(initTrucks int32) (worldId int64, err error) {
@@ -57,17 +71,30 @@ func (s *Server) DisconnectWorld() {
 	if err != nil {
 		log.Println(err)
 	}
-	var r ups.Responses
-	_, err = pb.ReadProto(s.world, &r)
-	if err != nil {
-		log.Println(err)
-	}
 }
 
-func (s *Server) TellWorld(c *ups.Commands) error {
-	_, err := pb.WriteProto(s.world, c)
+func (s *Server) TellWorld(c *ups.Commands) (err error) {
+	_, err = pb.WriteProto(s.world, c)
 	if err != nil {
 		log.Println(err)
 	}
-	return err
+	return
+}
+
+var errWorldDisconnect = errors.New("world disconnected")
+
+func (s *Server) ListenWorld() (err error) {
+	r := new(ups.Responses)
+	_, err = pb.ReadProto(s.world, r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if r.GetFinished() {
+		err = errWorldDisconnect
+		return
+	}
+	// TODO process the message
+	log.Println(r)
+	return
 }

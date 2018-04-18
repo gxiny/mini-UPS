@@ -29,16 +29,19 @@ type Server struct {
 }
 
 // New returns a new server.
-// Caller need to provide connections to the database and the world
-// simulator.  These are not closed when the server is shut down.
-// world is typically a TCP connection; the server will do its
-// own buffering for correctly reading varint-prefixed Protocol Buffer
-// objects from the stream.
-func New(db *sql.DB, world io.ReadWriteCloser) *Server {
-	return &Server{
-		db:    db,
-		world: newBufRW(world),
+// Caller need to provide connections to the database.
+// It is not closed when the server is shut down.
+// The server will make a connection to the world.
+func New(db *sql.DB, worldAddr string) (s *Server, err error) {
+	worldConn, err := net.Dial("tcp", worldAddr)
+	if err != nil {
+		return
 	}
+	s = &Server{
+		db:    db,
+		world: newBufRW(worldConn),
+	}
+	return
 }
 
 // Start make the server start listening and accepting connections.
@@ -48,11 +51,30 @@ func (s *Server) Start(listenAddr string) (err error) {
 		return
 	}
 	log.Println("Server started")
+	go s.acceptWorldMessages()
 	go s.acceptConnections()
 	return
 }
 
+func (s *Server) acceptWorldMessages() {
+	s.wg.Add(1)
+	defer s.wg.Done()
+	defer s.world.Close()
+	for {
+		err := s.ListenWorld()
+		if err == errWorldDisconnect {
+			log.Println("Disconnected from world")
+			return
+		}
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
 func (s *Server) acceptConnections() {
+	s.wg.Add(1)
+	defer s.wg.Done()
 	for {
 		conn, err := s.ln.Accept()
 		if err != nil {
@@ -67,6 +89,7 @@ func (s *Server) acceptConnections() {
 // all pending connections.
 func (s *Server) Stop() {
 	s.ln.Close()
+	s.DisconnectWorld()
 	s.wg.Wait()
 	log.Println("Server stopped")
 }
