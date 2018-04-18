@@ -11,7 +11,7 @@ message Connected {
 }
 message GoPickup {
   required int32 truck_id = 1;
-  required int32 whid = 2;
+  required int32 warehouse_id = 2;
 }
 
 message Finished {
