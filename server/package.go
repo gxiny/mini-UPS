@@ -3,6 +3,7 @@ package server
 import (
 	"database/sql"
 
+	"github.com/golang/protobuf/proto"
 	"gitlab.oit.duke.edu/rz78/ups/db"
 	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
 )
@@ -25,11 +26,12 @@ func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackage
 	resp = new(bridge.ResponsePackageId)
 	// TODO(rz78): package detail is ignored
 	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
-		id, err := db.CreatePackage(tx, "N/A", db.Coord{pkg.GetX(), pkg.GetY()}, pkg.GetWarehouseId())
+		var pkgId db.Package
+		err = pkgId.Create(tx, "N/A", db.Coord{pkg.GetX(), pkg.GetY()}, pkg.GetWarehouseId())
 		if err != nil {
 			return
 		}
-		resp.PackageId = &id
+		resp.PackageId = proto.Int64(int64(pkgId))
 		return
 	})
 	return
