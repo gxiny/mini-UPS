@@ -12,8 +12,8 @@ func TestPackageIdReqs(t *testing.T) {
 	resp, err := server.PackageIdReqs([]*bridge.Package{
 		{
 			WarehouseId: proto.Int64(1),
-			X: proto.Int32(233),
-			Y: proto.Int32(666),
+			X:           proto.Int32(233),
+			Y:           proto.Int32(666),
 		},
 	})
 	if err != nil {

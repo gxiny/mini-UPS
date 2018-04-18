@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	simAddr     = flag.String("sim", ":12345", "address of the world simulator")
-	worldId     = flag.Uint("world", 0, "ID of world to connect (0 = create a new world)")
+	simAddr       = flag.String("sim", ":12345", "address of the world simulator")
+	worldId       = flag.Uint("world", 0, "ID of world to connect (0 = create a new world)")
 	numTrucksInit = flag.Int("truck", 1, "number of initial trucks")
 )
 
