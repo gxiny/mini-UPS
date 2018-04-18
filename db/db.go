@@ -1,5 +1,5 @@
-// Package db contains database schemas used in this project
-// and helper functions.
+// Package db contains database definitions of objects
+// that are used in this project and related methods.
 package db
 
 import (
