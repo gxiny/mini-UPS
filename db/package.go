@@ -11,7 +11,8 @@ var PackageSQL = sqlObject{
 	destination coordinate NOT NULL,
 	user_id BIGINT REFERENCES "user"(id),
 	warehouse_id INTEGER NOT NULL,
-	truck_id INTEGER REFERENCES truck(id)
+	truck_id INTEGER REFERENCES truck(id),
+	delivered BOOLEAN NOT NULL DEFAULT FALSE
 )`}
 
 type Package int64
