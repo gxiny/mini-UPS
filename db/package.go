@@ -14,9 +14,11 @@ var PackageSQL = sqlObject{
 	truck_id INTEGER REFERENCES truck(id)
 )`}
 
-// CreatePackage returns the ID of a newly created package.
-func CreatePackage(tx *sql.Tx, detail string, destination Coord, warehouseId int64) (id int64, err error) {
+type Package int64
+
+// Create creates a new package.
+// The receiver is modified to the ID of the new package.
+func (id *Package) Create(tx *sql.Tx, detail string, destination Coord, warehouseId int64) error {
 	sql := `INSERT INTO package(detail, destination, warehouse_id) VALUES($1,$2,$3) RETURNING id`
-	err = tx.QueryRow(sql, detail, destination, warehouseId).Scan(&id)
-	return
+	return tx.QueryRow(sql, detail, destination, warehouseId).Scan(id)
 }

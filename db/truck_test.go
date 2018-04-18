@@ -4,14 +4,15 @@ import (
 	"testing"
 )
 
-func TestCreateTruck(t *testing.T) {
+func TestTruckCreate(t *testing.T) {
 	tx, err := db.Begin()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer tx.Rollback()
 
-	err = CreateTruck(tx, 1, Coord{3, 4})
+	truck := Truck(1)
+	err = truck.Create(tx, Coord{3, 4})
 	if err != nil {
 		t.Error(err)
 	}

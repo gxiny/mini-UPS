@@ -11,10 +11,9 @@ func TestCreatePackage(t *testing.T) {
 	}
 	defer tx.Rollback()
 
-	id, err := CreatePackage(tx, "abc123", Coord{3, 4}, 1)
+	var pkg Package
+	err = pkg.Create(tx, "abc123", Coord{3, 4}, 1)
 	if err != nil {
 		t.Error(err)
 	}
-
-	_ = id
 }

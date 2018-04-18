@@ -9,9 +9,11 @@ var UserSQL = sqlObject{
 	id BIGSERIAL PRIMARY KEY
 )`}
 
-// CreateUser returns the ID of a newly created user.
-func CreateUser(tx *sql.Tx) (id int64, err error) {
+type User int64
+
+// Create creates a new user.
+// The receiver is modified to the ID of the new user.
+func (id *User) Create(tx *sql.Tx) error {
 	sql := `INSERT INTO "user" DEFAULT VALUES RETURNING id`
-	err = tx.QueryRow(sql).Scan(&id)
-	return
+	return tx.QueryRow(sql).Scan(id)
 }

@@ -4,17 +4,16 @@ import (
 	"testing"
 )
 
-func TestCreateUser(t *testing.T) {
+func TestUserCreate(t *testing.T) {
 	tx, err := db.Begin()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer tx.Rollback()
 
-	id, err := CreateUser(tx)
+	var user User
+	err = user.Create(tx)
 	if err != nil {
 		t.Error(err)
 	}
-
-	_ = id
 }
