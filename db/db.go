@@ -24,6 +24,7 @@ func (s sqlObject) DropSQL() string {
 var allSQL = [...]sqlObject{
 	CoordSQL,
 	UserSQL,
+	truckStatus,
 	TruckSQL,
 	PackageSQL,
 }
