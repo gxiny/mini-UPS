@@ -40,13 +40,15 @@ func (s *Server) connectWorld(c *ups.Connect) (r *ups.Connected, err error) {
 func (s *Server) createTrucks(n int32) error {
 	// enclose all creations inside one transaction
 	return db.WithTx(s.db, func(tx *sql.Tx) (err error) {
-		r := new(ups.Finished)
+		r := new(ups.Responses)
 		for i := int32(0); i < n; i++ {
 			_, err = pb.ReadProto(s.world, r)
 			if err != nil {
 				return
 			}
-			id, coord := r.GetTruckId(), db.Coord{r.GetX(), r.GetY()}
+			completions := r.GetCompletions()
+			truck := completions[0]
+			id, coord := truck.GetTruckId(), db.Coord{truck.GetX(), truck.GetY()}
 			err = db.CreateTruck(tx, id, coord)
 			if err != nil {
 				return

@@ -51,7 +51,10 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	server.NewWorld(10)
+	err = server.NewWorld(10)
+	if err != nil {
+		panic(err)
+	}
 	defer server.DisconnectWorld()
 	m.Run()
 }
