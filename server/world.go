@@ -63,3 +63,11 @@ func (s *Server) DisconnectWorld() {
 		log.Println(err)
 	}
 }
+
+func (s *Server) TellWorld(c *ups.Commands) error {
+	_, err := pb.WriteProto(s.world, c)
+	if err != nil {
+		log.Println(err)
+	}
+	return err
+}
