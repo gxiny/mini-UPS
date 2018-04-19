@@ -106,10 +106,10 @@ func (w *Sim) ReadChan(typ reflect.Type) (<-chan proto.Message) {
 			val := reflect.New(typ).Interface().(Responses)
 			err := w.ReadProto(val)
 			if err != nil {
+				log.Println(err)
 				if err == io.EOF {
 					break
 				}
-				log.Println(err)
 			} else {
 				ch <- val
 				if val.GetFinished() {
