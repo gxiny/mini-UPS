@@ -13,8 +13,8 @@ import (
 
 var (
 	dbOptions = flag.String("db", "dbname=ups_server user=postgres password=passw0rd", "database options")
-	dbInit = flag.Bool("init", false, "init schema")
-	dbDrop = flag.Bool("drop", false, "drop schema")
+	dbInit    = flag.Bool("init", false, "init schema")
+	dbDrop    = flag.Bool("drop", false, "drop schema")
 )
 
 func main() {

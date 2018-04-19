@@ -22,10 +22,10 @@ func newBufRW(rw io.ReadWriteCloser) *bufRW {
 }
 
 type Server struct {
-	db     *sql.DB
-	ln     net.Listener
-	wg     sync.WaitGroup
-	world  *bufRW
+	db    *sql.DB
+	ln    net.Listener
+	wg    sync.WaitGroup
+	world *bufRW
 }
 
 // New returns a new server.

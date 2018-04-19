@@ -11,7 +11,7 @@ var metaTable = sqlObject{
 )`}
 
 func SetMeta(tx *sql.Tx, key, value string) error {
-	const sql = `INSERT INTO "meta" VALUES($1,$2) `+
+	const sql = `INSERT INTO "meta" VALUES($1,$2) ` +
 		`ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`
 	_, err := tx.Exec(sql, key, value)
 	return err

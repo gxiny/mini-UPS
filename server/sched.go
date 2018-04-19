@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	errNoIdleTruck  = errors.New("no idle truck")
+	errNoIdleTruck = errors.New("no idle truck")
 	errNoWarehouse = errors.New("no warehouse in need")
 )
 
@@ -39,7 +39,7 @@ func getTruckForWarehouse(tx *sql.Tx, warehouseId int32) (truck db.Truck, status
 	}
 
 	// this one can be optimized, e.g., pick the nearest truck
-	err = tx.QueryRow(`SELECT id FROM truck WHERE status = '`+string(db.IDLE)+`' LIMIT 1 FOR UPDATE`).
+	err = tx.QueryRow(`SELECT id FROM truck WHERE status = '` + string(db.IDLE) + `' LIMIT 1 FOR UPDATE`).
 		Scan(&truck)
 	switch err {
 	case nil:
@@ -83,7 +83,7 @@ func (s *Server) schedPickup() error {
 		err = s.TellWorld(&ups.Commands{
 			Pickups: []*ups.GoPickup{
 				{
-					TruckId: proto.Int32(int32(truck)),
+					TruckId:     proto.Int32(int32(truck)),
 					WarehouseId: proto.Int32(warehouseId),
 				},
 			},
