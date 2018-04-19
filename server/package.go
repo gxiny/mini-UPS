@@ -36,3 +36,9 @@ func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackage
 	})
 	return
 }
+
+func (s *Server) onPackageDelivered(pkg db.Package) error {
+	return db.WithTx(s.db, func(tx *sql.Tx) error {
+		return pkg.SetDelivered(tx)
+	})
+}

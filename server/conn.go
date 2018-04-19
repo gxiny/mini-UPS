@@ -46,12 +46,12 @@ func (s *Server) HandleCommand(c *bridge.UCommands) (resp *bridge.UResponses) {
 		if err != nil {
 			return
 		}
-	}
+	}*/
 	if req := c.GetLoaded(); req != nil {
-		err = s.TruckLoaded(req, resp)
+		err = s.onTruckLoaded(req)
 		if err != nil {
 			return
 		}
-	}*/
+	}
 	return
 }

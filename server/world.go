@@ -93,14 +93,34 @@ func (s *Server) ListenWorld() (err error) {
 	r := new(ups.Responses)
 	_, err = pb.ReadProto(s.world, r)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 	if r.GetFinished() {
 		err = errWorldDisconnect
 		return
 	}
-	// TODO process the message
-	log.Println(r)
+	s.ProcessWorldEvent(r)
 	return
+}
+
+func (s *Server) ProcessWorldEvent(r *ups.Responses) {
+	if completions := r.GetCompletions(); completions != nil {
+		for _, finished := range completions {
+			truck := db.Truck(finished.GetTruckId())
+			pos := db.Coord{finished.GetX(), finished.GetY()}
+			err := s.onTruckFinish(truck, pos)
+			if err != nil {
+				log.Println(err)
+			}
+		}
+	}
+	if delivered := r.GetDelivered(); delivered != nil {
+		for _, delivery := range delivered {
+			pkg := db.Package(delivery.GetPackageId())
+			err := s.onPackageDelivered(pkg)
+			if err != nil {
+				log.Println(err)
+			}
+		}
+	}
 }
