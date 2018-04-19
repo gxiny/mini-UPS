@@ -95,7 +95,6 @@ func (s *Server) acceptWorldMessages() {
 }
 
 func (s *Server) ProcessWorldEvent(r *ups.Responses) {
-	log.Println(r)
 	if completions := r.GetCompletions(); completions != nil {
 		for _, finished := range completions {
 			truck := db.Truck(finished.GetTruckId())
@@ -114,5 +113,8 @@ func (s *Server) ProcessWorldEvent(r *ups.Responses) {
 				log.Println(err)
 			}
 		}
+	}
+	if r.Error != nil {
+		log.Println(*r.Error)
 	}
 }
