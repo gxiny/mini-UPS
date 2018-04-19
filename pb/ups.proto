@@ -1,4 +1,5 @@
 // Adopted from Drew's ups.proto for better naming
+package ups;
 
 message Connect {
   optional int64 reconnect_id = 1;

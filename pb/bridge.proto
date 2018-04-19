@@ -1,3 +1,5 @@
+package bridge;
+
 message Item {
 	required int64 item_id = 1;
 	required string description = 2;

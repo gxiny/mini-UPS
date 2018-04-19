@@ -1,0 +1,56 @@
+// Adopted from Drew's amazon.proto for better naming
+package amz;
+
+message Product {
+  required int64 id = 1;
+  required string description = 2;
+  required int32 count = 3;
+}
+
+message InitWarehouse {
+   required int32 x = 1;
+   required int32 y = 2;
+}
+
+
+message Connect {
+  required int64 world_id = 1;
+  repeated InitWarehouse init_warehouses = 2;
+}
+message Connected {
+  optional string error = 1;
+}
+
+message Pack {
+  required int32 warehouse_id  = 1;
+  repeated Product things = 2;
+  required int64 ship_id = 3;
+}
+
+message PutOnTruck {
+   required int32 warehouse_id = 1;
+   required int32 truck_id = 2;
+   required int64 ship_id = 3;
+}
+
+message PurchaseMore {
+   required int32 warehouse_id = 1;
+   repeated Product things = 2;
+}
+
+
+message Commands {
+   repeated PurchaseMore buy = 1;
+   repeated PutOnTruck load = 2;
+   repeated Pack to_pack = 3;
+   optional uint32 sim_speed = 4; //units/minute
+   optional bool disconnect = 5; //after processing/sending replies, close  
+}
+
+message Responses {
+   repeated PurchaseMore arrived = 1;
+   repeated int64 ready = 2; //ship ids
+   repeated int64 loaded = 3; //ship ids
+   optional string error = 4;
+   optional bool finished = 5;
+}
