@@ -7,28 +7,29 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"gitlab.oit.duke.edu/rz78/ups/db"
-	"gitlab.oit.duke.edu/rz78/ups/pb"
 	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
 	"gitlab.oit.duke.edu/rz78/ups/pb/ups"
 )
 
-func (s *Server) createTrucks(n int32) error {
-	// enclose all creations inside one transaction
+// initTrucks will wait until info of n trucks are received
+func (s *Server) initTrucks(n int32) error {
 	return db.WithTx(s.db, func(tx *sql.Tx) (err error) {
-		r := new(ups.Responses)
-		for i := int32(0); i < n; i++ {
-			_, err = pb.ReadProto(s.world, r)
+		for n > 0 {
+			resp := new(ups.Responses)
+			err = s.sim.ReadProto(resp)
 			if err != nil {
 				return
 			}
-			t := r.GetCompletions()[0]
-			truck := db.Truck(t.GetTruckId())
-			coord := db.CoordXY(t)
-			err = truck.Create(tx, coord)
-			if err != nil {
-				return
+			for _, v := range resp.GetCompletions() {
+				truck := db.Truck(v.GetTruckId())
+				pos := db.CoordXY(v)
+				err = truck.UpdatePos(tx, pos)
+				if err != nil {
+					return
+				}
+				n--
+				log.Println("created truck", truck, "at", pos)
 			}
-			log.Println("Created truck", truck, "at", coord)
 		}
 		return
 	})

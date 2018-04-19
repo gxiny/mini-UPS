@@ -18,34 +18,33 @@ var dbOptions = flag.String("db", "dbname=test user=postgres password=passw0rd",
 
 const worldSimAddr = ":12345"
 
-func TestMain(m *testing.M) {
-	var err error
+func initTestEnv() (err error) {
 	database, err = sql.Open("postgres", *dbOptions)
 	if err != nil {
-		panic(err)
-	}
-	if err != nil {
-		panic(err)
+		return
 	}
 	err = db.WithTx(database, func(tx *sql.Tx) error {
 		db.DestroySchema(tx)
 		return db.InitSchema(tx)
 	})
 	if err != nil {
-		panic(err)
+		return
 	}
-	server, err = New(database, worldSimAddr)
+	server = New(database)
+	err = server.NewWorld(worldSimAddr, 10)
 	if err != nil {
-		panic(err)
-	}
-	err = server.NewWorld(10)
-	if err != nil {
-		panic(err)
+		return
 	}
 	err = server.Start(":23333")
+	return
+}
+
+func TestMain(m *testing.M) {
+	err := initTestEnv()
 	if err != nil {
 		panic(err)
 	}
+	defer database.Close()
 	defer server.Stop()
 
 	m.Run()

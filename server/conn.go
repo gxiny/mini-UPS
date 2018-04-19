@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bufio"
 	"io"
 	"log"
 
@@ -8,20 +9,33 @@ import (
 	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
 )
 
+func (s *Server) acceptConnections() {
+	s.wg.Add(1)
+	defer s.wg.Done()
+	for {
+		conn, err := s.ln.Accept()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		go s.HandleConnection(conn)
+	}
+}
+
 func (s *Server) HandleConnection(conn io.ReadWriteCloser) {
 	s.wg.Add(1)
 	defer s.wg.Done()
 	defer conn.Close()
 
-	rw := newBufRW(conn)
+	reader := bufio.NewReader(conn)
 	var c bridge.UCommands
-	_, err := pb.ReadProto(rw, &c)
+	_, err := pb.ReadProto(reader, &c)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	r := s.HandleCommand(&c)
-	pb.WriteProto(rw, r)
+	pb.WriteProto(conn, r)
 }
 
 func (s *Server) HandleCommand(c *bridge.UCommands) (resp *bridge.UResponses) {
