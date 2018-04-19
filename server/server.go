@@ -14,6 +14,7 @@ type Server struct {
 	ln  net.Listener
 	wg  sync.WaitGroup
 	sim *world.Sim
+	mtx sync.Mutex
 }
 
 // New returns a new server.

@@ -72,6 +72,9 @@ func (s *Server) DisconnectWorld() {
 }
 
 func (s *Server) TellWorld(c *ups.Commands) (err error) {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
 	err = s.sim.WriteProto(c)
 	if err != nil {
 		log.Println(err)
