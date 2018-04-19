@@ -48,6 +48,6 @@ message TruckArrival {
 }
 
 message PackagesLoaded {
-	repeated Package packages = 1;
+	repeated int64 package_ids = 1;
 	required int32 truck_id = 2;
 }
