@@ -30,20 +30,18 @@ func main() {
 	}
 	defer database.Close()
 
-	s, err := server.New(database, *worldAddr)
+	s := server.New(database)
 	if err != nil {
-		s.DisconnectWorld()
 		log.Println(err)
 		return
 	}
 	worldId, err := s.GetWorldId()
 	if err != nil {
-		err = s.NewWorld(int32(*initTrucks))
+		err = s.NewWorld(*worldAddr, int32(*initTrucks))
 	} else {
-		err = s.ReconnectWorld(worldId)
+		err = s.ReconnectWorld(*worldAddr, worldId)
 	}
 	if err != nil {
-		s.DisconnectWorld()
 		log.Println(err)
 		return
 	}
