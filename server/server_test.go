@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = server.NewWorld(10)
+	err = server.NewWorld(10)
 	if err != nil {
 		panic(err)
 	}
