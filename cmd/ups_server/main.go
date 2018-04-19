@@ -49,7 +49,6 @@ func main() {
 	}
 
 	s.Start(*listenAddr)
-	defer s.Stop()
 
 	ch := make(chan os.Signal)
 	signal.Notify(ch, os.Interrupt)
