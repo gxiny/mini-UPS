@@ -107,7 +107,7 @@ func (s *Server) ProcessWorldEvent(r *ups.Responses) {
 	if completions := r.GetCompletions(); completions != nil {
 		for _, finished := range completions {
 			truck := db.Truck(finished.GetTruckId())
-			pos := db.Coord{finished.GetX(), finished.GetY()}
+			pos := db.CoordXY(finished)
 			err := s.onTruckFinish(truck, pos)
 			if err != nil {
 				log.Println(err)

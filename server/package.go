@@ -27,7 +27,7 @@ func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackage
 	// TODO(rz78): package detail is ignored
 	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
 		var pkgId db.Package
-		err = pkgId.Create(tx, "N/A", db.Coord{pkg.GetX(), pkg.GetY()}, pkg.GetWarehouseId())
+		err = pkgId.Create(tx, "N/A", db.CoordXY(pkg), pkg.GetWarehouseId())
 		if err != nil {
 			return
 		}

@@ -23,7 +23,7 @@ func (s *Server) createTrucks(n int32) error {
 			}
 			t := r.GetCompletions()[0]
 			truck := db.Truck(t.GetTruckId())
-			coord := db.Coord{t.GetX(), t.GetY()}
+			coord := db.CoordXY(t)
 			err = truck.Create(tx, coord)
 			if err != nil {
 				return

@@ -31,7 +31,7 @@ func TestPackageIdReqs(t *testing.T) {
 	if whId != 1 {
 		t.Error("warehouse_id != 1")
 	}
-	if (coord != db.Coord{233, 666}) {
+	if (coord != db.Coord{X: 233, Y: 666}) {
 		t.Error("coord != (233,666)")
 	}
 }
