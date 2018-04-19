@@ -4,20 +4,6 @@ import (
 	"testing"
 )
 
-func TestTruckCreate(t *testing.T) {
-	tx, err := db.Begin()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer tx.Rollback()
-
-	truck := Truck(1)
-	err = truck.Create(tx, Coord{3, 4})
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 func TestTruckPos(t *testing.T) {
 	tx, err := db.Begin()
 	if err != nil {
@@ -26,16 +12,24 @@ func TestTruckPos(t *testing.T) {
 	defer tx.Rollback()
 
 	truck := Truck(1)
-	err = truck.Create(tx, Coord{3, 4})
+	err = truck.UpdatePos(tx, Coord{3, 4})
 	if err != nil {
 		t.Error(err)
+	}
+	var pos Coord
+	err = tx.QueryRow(`SELECT last_pos FROM truck WHERE id = $1`, truck).
+		Scan(&pos)
+	if err != nil {
+		t.Error(err)
+	}
+	if (pos != Coord{3, 4}) {
+		t.Error("last_pos != (3,4)")
 	}
 
 	err = truck.UpdatePos(tx, Coord{5, 6})
 	if err != nil {
 		t.Error(err)
 	}
-	var pos Coord
 	err = tx.QueryRow(`SELECT last_pos FROM truck WHERE id = $1`, truck).
 		Scan(&pos)
 	if err != nil {
@@ -54,7 +48,7 @@ func TestTruckStatus(t *testing.T) {
 	defer tx.Rollback()
 
 	truck := Truck(1)
-	err = truck.Create(tx, Coord{3, 4})
+	err = truck.UpdatePos(tx, Coord{3, 4})
 	if err != nil {
 		t.Error(err)
 	}
