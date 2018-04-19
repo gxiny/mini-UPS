@@ -24,14 +24,20 @@ func (s *Server) GetWorldId() (worldId int64, err error) {
 }
 
 // NewWorld talks to the world simulator to create a new world.
-func (s *Server) NewWorld(initTrucks int32) (worldId int64, err error) {
+func (s *Server) NewWorld(initTrucks int32) (err error) {
 	r, err := s.connectWorld(&ups.Connect{
 		NumTrucksInit: &initTrucks,
 	})
 	if err != nil {
 		return
 	}
-	worldId = r.GetWorldId()
+	worldId := r.GetWorldId()
+	err = db.WithTx(s.db, func(tx *sql.Tx) error {
+		return db.SetMeta(tx, "world_id", strconv.FormatInt(worldId, 10))
+	})
+	if err != nil {
+		return
+	}
 	err = s.createTrucks(initTrucks)
 	return
 }
