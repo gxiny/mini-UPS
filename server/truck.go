@@ -113,8 +113,8 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 			// I might be tricked to make a delivery again (and get an error from world).
 			dLocs = append(dLocs, &ups.DeliveryLocation{
 				PackageId: proto.Int64(pkg),
-				X: &dest.X,
-				Y: &dest.Y,
+				X:         &dest.X,
+				Y:         &dest.Y,
 			})
 		}
 		err = truck.UpdateStatus(tx, db.DELIVERING)
@@ -126,7 +126,7 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 		err = s.TellWorld(&ups.Commands{
 			Deliveries: []*ups.GoDeliver{
 				{
-					TruckId: proto.Int32(int32(truck)),
+					TruckId:  proto.Int32(int32(truck)),
 					Packages: dLocs,
 				},
 			},
