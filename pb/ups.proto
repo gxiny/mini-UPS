@@ -31,7 +31,7 @@ message DeliveryLocation {
 }
 
 message GoDeliver {
-  required int32 truckid = 1;
+  required int32 truck_id = 1;
   repeated DeliveryLocation packages = 2;
 }
 
