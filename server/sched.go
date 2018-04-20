@@ -80,7 +80,7 @@ func (s *Server) schedPickup() error {
 		}
 		// tx succeeds; tell the world
 		// what if world fails? (don't have much to do; maybe rollback)
-		err = s.TellWorld(&ups.Commands{
+		err = s.WriteWorld(&ups.Commands{
 			Pickups: []*ups.GoPickup{
 				{
 					TruckId:     proto.Int32(int32(truck)),

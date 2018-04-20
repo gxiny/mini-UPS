@@ -13,7 +13,7 @@ type Server struct {
 	db  *sql.DB
 	ln  net.Listener
 	wg  sync.WaitGroup
-	sim world.Sim
+	sim world.SimU
 	mtx sync.Mutex
 }
 
@@ -42,7 +42,7 @@ func (s *Server) Start(listenAddr string) (err error) {
 // all pending connections.
 func (s *Server) Stop() {
 	s.ln.Close()
-	s.DisconnectWorld()
+	s.sim.DisconnectWorld()
 	s.wg.Wait()
 	log.Println("Server stopped")
 }

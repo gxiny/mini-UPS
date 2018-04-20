@@ -124,7 +124,7 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 		}
 		// tx succeeds; tell the world
 		// don't bother with other warehouses; just go deliver
-		err = s.TellWorld(&ups.Commands{
+		err = s.WriteWorld(&ups.Commands{
 			Deliveries: []*ups.GoDeliver{
 				{
 					TruckId:  proto.Int32(int32(truck)),

@@ -23,15 +23,10 @@ func (s *Server) GetWorldId() (worldId int64, err error) {
 
 // NewWorld talks to the world simulator to create a new world.
 func (s *Server) NewWorld(addr string, initTrucks int32) (err error) {
-	connect := &ups.Connect{
-		NumTrucksInit: &initTrucks,
-	}
-	connected := new(ups.Connected)
-	err = s.sim.Connect(addr, connect, connected)
+	worldId, err := s.sim.NewWorld(addr, initTrucks)
 	if err != nil {
 		return
 	}
-	worldId := connected.GetWorldId()
 	err = db.WithTx(s.db, func(tx *sql.Tx) error {
 		return db.SetMeta(tx, "world_id", strconv.FormatInt(worldId, 10))
 	})
@@ -45,32 +40,17 @@ func (s *Server) NewWorld(addr string, initTrucks int32) (err error) {
 
 // ReconnectWorld reconnects to the world specified by worldId
 func (s *Server) ReconnectWorld(addr string, worldId int64) (err error) {
-	connect := &ups.Connect{
-		ReconnectId: &worldId,
-	}
-	connected := new(ups.Connected)
-	err = s.sim.Connect(addr, connect, connected)
+	err = s.sim.ReconnectWorld(addr, worldId)
 	if err != nil {
 		return
-	}
-	if connected.GetWorldId() != worldId {
-		panic("world_id != reconnect_id")
 	}
 	log.Println("reconnected to world", worldId)
 	return
 }
 
-func (s *Server) DisconnectWorld() {
-	c := &ups.Commands{
-		Disconnect: proto.Bool(true),
-	}
-	err := s.sim.WriteProto(c)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func (s *Server) TellWorld(c *ups.Commands) (err error) {
+// WriteWorld writes Commands to world.
+// It use a mutex to prevent concurrent writes.
+func (s *Server) WriteWorld(c *ups.Commands) (err error) {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
