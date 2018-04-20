@@ -13,7 +13,7 @@ type Server struct {
 	db  *sql.DB
 	ln  net.Listener
 	wg  sync.WaitGroup
-	sim *world.Sim
+	sim world.Sim
 	mtx sync.Mutex
 }
 
@@ -28,9 +28,6 @@ func New(db *sql.DB) *Server {
 
 // Start make the server start listening and accepting connections.
 func (s *Server) Start(listenAddr string) (err error) {
-	if s.sim == nil {
-		panic("world is not connected")
-	}
 	s.ln, err = net.Listen("tcp", listenAddr)
 	if err != nil {
 		return
@@ -44,9 +41,6 @@ func (s *Server) Start(listenAddr string) (err error) {
 // Stop stops the server from accepting connections and waits for
 // all pending connections.
 func (s *Server) Stop() {
-	if s.sim == nil {
-		panic("world is not connected")
-	}
 	s.ln.Close()
 	s.DisconnectWorld()
 	s.wg.Wait()

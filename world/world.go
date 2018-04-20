@@ -28,18 +28,17 @@ type Connected interface {
 
 // Connect connects to the given address, sends the connect message
 // to the simulator and receives the connected message.
-func Connect(addr string, connect proto.Message, connected Connected) (w *Sim, err error) {
+func (w *Sim) Connect(addr string, connect proto.Message, connected Connected) (err error) {
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		return
 	}
-	w = &Sim{
-		r: bufio.NewReader(conn),
-		w: conn,
-	}
+	w.r = bufio.NewReader(conn)
+	w.w = conn
 	defer func() {
 		if err != nil {
-			w = nil
+			w.r = nil
+			w.w = nil
 			conn.Close()
 		}
 	}()

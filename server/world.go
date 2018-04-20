@@ -8,7 +8,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"gitlab.oit.duke.edu/rz78/ups/db"
 	"gitlab.oit.duke.edu/rz78/ups/pb/ups"
-	"gitlab.oit.duke.edu/rz78/ups/world"
 )
 
 func (s *Server) GetWorldId() (worldId int64, err error) {
@@ -28,7 +27,7 @@ func (s *Server) NewWorld(addr string, initTrucks int32) (err error) {
 		NumTrucksInit: &initTrucks,
 	}
 	connected := new(ups.Connected)
-	s.sim, err = world.Connect(addr, connect, connected)
+	err = s.sim.Connect(addr, connect, connected)
 	if err != nil {
 		return
 	}
@@ -50,7 +49,7 @@ func (s *Server) ReconnectWorld(addr string, worldId int64) (err error) {
 		ReconnectId: &worldId,
 	}
 	connected := new(ups.Connected)
-	s.sim, err = world.Connect(addr, connect, connected)
+	err = s.sim.Connect(addr, connect, connected)
 	if err != nil {
 		return
 	}
