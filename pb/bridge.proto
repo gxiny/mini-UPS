@@ -8,11 +8,10 @@ message Item {
 
 message Package {
 	required int64 warehouse_id = 1;
-	required int32 truck_id = 2;
-	optional int64 ups_user_id = 3;
-	required int32 x = 4;
-	required int32 y = 5;
-	repeated Item items = 6;
+	optional int64 ups_user_id = 2;
+	required int32 x = 3;
+	required int32 y = 4;
+	repeated Item items = 5;
 }
 
 message UCommands {
@@ -24,7 +23,6 @@ message UCommands {
 message UResponses {
 	required string error = 1; // empty means success
 	repeated ResponsePackageId package_ids = 2;
-	optional TruckArrival trucks = 3;
 }
 
 message ACommands {
