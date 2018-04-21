@@ -32,7 +32,10 @@ def conn() :
     port = 9005
     clientsocket.connect((host,port))
     return clientsocket
-    
+
+def index(request) :
+    return render (request,'ups.html')
+
 def regist(request):
     if request.method == 'POST':
         uf = SignUpForm(request.POST)
@@ -140,7 +143,9 @@ def searchpage(request) :
                 msg = clientsocket.recv(1024)
                 resp = ups_comm_pb2.FResponse()
                 resp.ParseFromString(msg)
-                test = (resp.pack_info)          
+                if resp.error is not None:
+                    return render(request, 'search.html', {'wrong_message': resp.error})    
+                test = (resp.pack_info)      
                 return render(request, 'search_res.html',{'test':resp.pack_info})
     else :
         form = SearchForm()
