@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"gitlab.oit.duke.edu/rz78/ups/pb/amz"
+	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
 )
 
 func TestParseConnect(t *testing.T) {
@@ -34,6 +35,26 @@ func TestParsePurchase(t *testing.T) {
 					Count:       proto.Int32(5),
 				},
 			},
+		}},
+	}
+	msg := ParseProto(s)
+	if !proto.Equal(msg, ref) {
+		t.Error(msg, "!=", ref)
+	}
+}
+
+func TestParsePackage(t *testing.T) {
+	const s = "pkg 1 -1 10 11 2 \"super mario\" 5"
+	ref := &bridge.UCommands{
+		PackageIdReq: []*bridge.Package{{
+			WarehouseId: proto.Int32(1),
+			X: proto.Int32(10),
+			Y: proto.Int32(11),
+			Items: []*bridge.Item{{
+				ItemId: proto.Int64(2),
+				Description: proto.String("super mario"),
+				Amount: proto.Int32(5),
+			}},
 		}},
 	}
 	msg := ParseProto(s)
