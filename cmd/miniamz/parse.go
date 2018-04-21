@@ -82,11 +82,14 @@ func (s *Scanner) ScanString() string {
 }
 
 var parserMap = map[string]func(*Scanner) proto.Message{
+	// world commands
 	"connect":    parseConnect,
 	"disconnect": parseDisconnect,
 	"simspeed":   parseSimSpeed,
 	"purchase":   parsePurchase,
-	"pkg":        parsePackage,
+	// UPS commands
+	"pkg":      parsePackage,
+	"truckreq": parseTruckReq,
 }
 
 func ParseProto(s string) proto.Message {
@@ -219,5 +222,15 @@ func parsePackage(sc *Scanner) proto.Message {
 	}
 	return &bridge.UCommands{
 		PackageIdReq: []*bridge.Package{pkg},
+	}
+}
+
+// syntax: "truckreq" warehouse_id
+func parseTruckReq(sc *Scanner) proto.Message {
+	whId := sc.ScanInt(32)
+	return &bridge.UCommands{
+		TruckReq: &bridge.RequestTruck{
+			WarehouseId: proto.Int32(int32(whId)),
+		},
 	}
 }

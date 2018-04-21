@@ -48,14 +48,27 @@ func TestParsePackage(t *testing.T) {
 	ref := &bridge.UCommands{
 		PackageIdReq: []*bridge.Package{{
 			WarehouseId: proto.Int32(1),
-			X: proto.Int32(10),
-			Y: proto.Int32(11),
+			X:           proto.Int32(10),
+			Y:           proto.Int32(11),
 			Items: []*bridge.Item{{
-				ItemId: proto.Int64(2),
+				ItemId:      proto.Int64(2),
 				Description: proto.String("super mario"),
-				Amount: proto.Int32(5),
+				Amount:      proto.Int32(5),
 			}},
 		}},
+	}
+	msg := ParseProto(s)
+	if !proto.Equal(msg, ref) {
+		t.Error(msg, "!=", ref)
+	}
+}
+
+func TestParseTruckReq(t *testing.T) {
+	const s = "truckreq 123"
+	ref := &bridge.UCommands{
+		TruckReq: &bridge.RequestTruck{
+			WarehouseId: proto.Int32(123),
+		},
 	}
 	msg := ParseProto(s)
 	if !proto.Equal(msg, ref) {
