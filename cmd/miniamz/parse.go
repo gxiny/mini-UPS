@@ -150,8 +150,8 @@ func parsePack(sc *Scanner) proto.Message {
 	shId := sc.ScanInt(64)
 	msg := &amz.Pack{
 		WarehouseId: proto.Int32(int32(whId)),
-		ShipId: &shId,
-		Things: productList(sc),
+		ShipId:      &shId,
+		Things:      productList(sc),
 	}
 	if sc.ErrorCount > 0 {
 		return nil
@@ -173,8 +173,8 @@ func parsePutOnTruck(sc *Scanner) proto.Message {
 	}
 	msg := &amz.PutOnTruck{
 		WarehouseId: proto.Int32(int32(whId)),
-		TruckId: proto.Int32(int32(trId)),
-		ShipId: &shId,
+		TruckId:     proto.Int32(int32(trId)),
+		ShipId:      &shId,
 	}
 	return &amz.Commands{
 		Load: []*amz.PutOnTruck{msg},
@@ -221,7 +221,7 @@ func parsePurchase(sc *Scanner) proto.Message {
 	whId := sc.ScanInt(32)
 	msg := &amz.PurchaseMore{
 		WarehouseId: proto.Int32(int32(whId)),
-		Things: productList(sc),
+		Things:      productList(sc),
 	}
 	if sc.ErrorCount > 0 {
 		return nil

@@ -16,8 +16,9 @@ import (
 )
 
 var (
-	worldAddr = flag.String("sim", ":23456", "world simulator address")
-	upsAddr   = flag.String("ups", ":23333", "ups server address")
+	worldAddr  = flag.String("sim", ":23456", "world simulator address")
+	upsAddr    = flag.String("ups", ":23333", "ups server address")
+	listenAddr = flag.String("l", ":2333", "listen address")
 )
 
 var responsesType = proto.MessageType("amz.Responses")
@@ -29,6 +30,8 @@ var (
 
 func main() {
 	flag.Parse()
+
+	go listenUPS()
 	sc := bufio.NewScanner(os.Stdin)
 	for sc.Scan() {
 		msg := ParseProto(sc.Text())
@@ -56,6 +59,32 @@ func main() {
 		if err != nil {
 			log.Println("error:", err)
 		}
+	}
+}
+
+func listenUPS() {
+	ln, err := net.Listen("tcp", *listenAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ln.Close()
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Println(err)
+		}
+		msg := new(bridge.ACommands)
+		_, err = pb.ReadProto(bufio.NewReader(conn), msg)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println("ups:", msg)
+		}
+		_, err = pb.WriteProto(conn, &bridge.AResponses{})
+		if err != nil {
+			log.Println(err)
+		}
+		conn.Close()
 	}
 }
 
