@@ -87,9 +87,12 @@ var parserMap = map[string]func(*Scanner) proto.Message{
 	"disconnect": parseDisconnect,
 	"simspeed":   parseSimSpeed,
 	"purchase":   parsePurchase,
+	"pack":       parsePack,
+	"put":        parsePutOnTruck,
 	// UPS commands
 	"pkg":      parsePackage,
 	"truckreq": parseTruckReq,
+	"loaded":   parseLoaded,
 }
 
 func ParseProto(s string) proto.Message {
@@ -134,31 +137,53 @@ func parseConnect(sc *Scanner) proto.Message {
 	return msg
 }
 
+// syntax: "disconnect"
 func parseDisconnect(*Scanner) proto.Message {
 	return &amz.Commands{
 		Disconnect: proto.Bool(true),
 	}
 }
 
-func parseSimSpeed(sc *Scanner) proto.Message {
-	speed := sc.ScanInt(32)
+// syntax: "pack" warehouse_id ship_id <product_list>
+func parsePack(sc *Scanner) proto.Message {
+	whId := sc.ScanInt(32)
+	shId := sc.ScanInt(64)
+	msg := &amz.Pack{
+		WarehouseId: proto.Int32(int32(whId)),
+		ShipId: &shId,
+		Things: productList(sc),
+	}
 	if sc.ErrorCount > 0 {
 		return nil
 	}
 	return &amz.Commands{
-		SimSpeed: proto.Uint32(uint32(speed)),
+		ToPack: []*amz.Pack{msg},
 	}
 }
 
-// syntax: "purchase" wh_id {prod_id description count}
-func parsePurchase(sc *Scanner) proto.Message {
-	whId := sc.ScanInt(32)
+// syntax: "put" warehouse_id truck_id ship_id
+func parsePutOnTruck(sc *Scanner) proto.Message {
+	var (
+		whId = sc.ScanInt(32)
+		trId = sc.ScanInt(32)
+		shId = sc.ScanInt(64)
+	)
 	if sc.ErrorCount > 0 {
 		return nil
 	}
-	msg := &amz.PurchaseMore{
+	msg := &amz.PutOnTruck{
 		WarehouseId: proto.Int32(int32(whId)),
+		TruckId: proto.Int32(int32(trId)),
+		ShipId: &shId,
 	}
+	return &amz.Commands{
+		Load: []*amz.PutOnTruck{msg},
+	}
+}
+
+// product_list ::= {prod_id description count}
+func productList(sc *Scanner) []*amz.Product {
+	l := []*amz.Product{}
 	for {
 		if sc.Peek() == scanner.EOF {
 			break
@@ -169,13 +194,37 @@ func parsePurchase(sc *Scanner) proto.Message {
 			count = sc.ScanInt(32)
 		)
 		if sc.ErrorCount > 0 {
-			return nil
+			break
 		}
-		msg.Things = append(msg.Things, &amz.Product{
+		l = append(l, &amz.Product{
 			Id:          &prId,
 			Description: &desc,
 			Count:       proto.Int32(int32(count)),
 		})
+	}
+	return l
+}
+
+// syntax: "simspeed" speed
+func parseSimSpeed(sc *Scanner) proto.Message {
+	speed := sc.ScanInt(32)
+	if sc.ErrorCount > 0 {
+		return nil
+	}
+	return &amz.Commands{
+		SimSpeed: proto.Uint32(uint32(speed)),
+	}
+}
+
+// syntax: "purchase" wh_id <product_list>
+func parsePurchase(sc *Scanner) proto.Message {
+	whId := sc.ScanInt(32)
+	msg := &amz.PurchaseMore{
+		WarehouseId: proto.Int32(int32(whId)),
+		Things: productList(sc),
+	}
+	if sc.ErrorCount > 0 {
+		return nil
 	}
 	return &amz.Commands{
 		Buy: []*amz.PurchaseMore{msg},
@@ -228,9 +277,33 @@ func parsePackage(sc *Scanner) proto.Message {
 // syntax: "truckreq" warehouse_id
 func parseTruckReq(sc *Scanner) proto.Message {
 	whId := sc.ScanInt(32)
+	if sc.ErrorCount > 0 {
+		return nil
+	}
 	return &bridge.UCommands{
 		TruckReq: &bridge.RequestTruck{
 			WarehouseId: proto.Int32(int32(whId)),
 		},
+	}
+}
+
+// syntax: "loaded" truck_id {package_id}
+func parseLoaded(sc *Scanner) proto.Message {
+	trId := sc.ScanInt(32)
+	msg := &bridge.PackagesLoaded{
+		TruckId: proto.Int32(int32(trId)),
+	}
+	for {
+		if sc.Peek() == scanner.EOF {
+			break
+		}
+		pkgId := sc.ScanInt(64)
+		if sc.ErrorCount > 0 {
+			return nil
+		}
+		msg.PackageIds = append(msg.PackageIds, pkgId)
+	}
+	return &bridge.UCommands{
+		Loaded: msg,
 	}
 }
