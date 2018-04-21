@@ -67,7 +67,7 @@ func (s *Server) acceptWorldMessages() {
 	defer s.sim.Close()
 	ch := s.sim.ReadChan(proto.MessageType("ups.Responses"))
 	for msg := range ch {
-		log.Printf("world:", msg)
+		log.Println("world:", msg)
 		if resp, ok := msg.(*ups.Responses); ok {
 			s.ProcessWorldEvent(resp)
 		}
