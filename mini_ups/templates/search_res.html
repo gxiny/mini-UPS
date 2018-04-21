@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+      {% for testlist in test %} 
+   <p>  Package </a> </p>
+   <p>  description : {{testlist.detail}} </p>
+   <p>  tracking_number : {{testlist.package_id }}     </p>
+   <p>  status : {{testlist.status }}     </p>
+      {% endfor %}
+</div>
+{% endblock %}

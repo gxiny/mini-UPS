@@ -1,0 +1,51 @@
+message FUser {
+        required string fusername = 1;
+}
+
+message FPackage {
+	required int64 buser_id = 1;
+}
+
+message FTracking {
+	required int64 package_id = 1;
+}
+
+message FTransfer {
+	required int64 package_id = 1;
+	required int32 x = 2;
+	required int32 y = 3;
+}
+
+message FCommands {
+        optional FUser fuser = 1;
+	optional FPackage buser_id = 2;
+	optional FTracking track = 3;
+	optional FTransfer transfer = 4;
+}
+
+message FResponse {
+	optional BUser buser = 1;
+	repeated BPackage pack_info = 2;
+	optional string error = 3;
+}
+	
+
+message BUser {
+        required int64 buser_id = 2;
+}
+	
+
+message BPackage {
+	repeated Item detail = 1;
+	required int64 package_id = 2;
+	repeated PackStatus status = 3; 
+}
+
+message Item {
+	required string description = 1;
+	required int32 amount = 2;
+}
+
+message PackStatus {
+	required string progress = 1;
+}

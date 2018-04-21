@@ -1,0 +1,19 @@
+{% load staticfiles %}
+
+<html>
+  <head>
+    <title>Homepage</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link href="//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/rsvp.css' %}">
+  </head>
+  <body>
+    {% csrf_token %}
+    <div>
+      <a href="{% url 'homepage' %}"><h1>Homepage</h1></a>
+    </div>
+    {% block content %}
+    {% endblock %}
+  </body>
+  </html>

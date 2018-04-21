@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+<div>
+  <h3>{{  username }}  Welcome!</h3>
+</div>
+<div>
+      {% for testlist in test %} 
+   <p>  Package <a href="{% url 'logout' %}">Redirect</a> </p>
+   <p>  description : {{testlist.detail}} </p>
+   <p>  tracking_number : {{testlist.package_id }}     </p>
+   <p>  status : {{testlist.status }}     </p>
+      {% endfor %}
+  
+  <p><a href="{% url 'logout' %}">Log Out</a></p>
+</div>
+{% else %}
+<div>
+  <button class = "btn btn-default"><a href = "{% url 'login' %}">log in</a></button>
+</div>
+{% endif %}
+{% endblock %}

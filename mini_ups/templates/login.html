@@ -1,0 +1,11 @@
+{% extends 'signbase.html' %}
+
+{% block content %}
+<h1>login</h1>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{uf.as_p}}
+  <button type="submit">Log in</button>
+</form>
+<a href="{% url 'regist' %}">regist</a>
+    {% endblock %}
