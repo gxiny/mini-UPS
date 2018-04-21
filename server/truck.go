@@ -36,10 +36,10 @@ func (s *Server) initTrucks(n int32) error {
 }
 
 func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
+	var status db.TruckStatus
 	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
 		// there isn't a concurrent-access issue; FOR UPDATE may not be necessary
 		const sql = `SELECT status FROM truck WHERE id = $1 FOR UPDATE`
-		var status db.TruckStatus
 		err = tx.QueryRow(sql, truck).Scan(&status)
 		if err != nil {
 			return
@@ -59,7 +59,7 @@ func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
 		err = truck.UpdatePos(tx, pos)
 		return
 	})
-	if err == nil {
+	if err == nil && status == db.IDLE {
 		err = s.schedTruck(truck)
 	}
 	return
