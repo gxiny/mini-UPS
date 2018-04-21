@@ -16,7 +16,10 @@ var (
 
 var dbOptions = flag.String("db", "dbname=test user=postgres password=passw0rd", "database options")
 
-const worldSimAddr = ":12345"
+const (
+	worldAddr = ":12345"
+	amzAddr = ":2333"
+)
 
 func initTestEnv() (err error) {
 	database, err = sql.Open("postgres", *dbOptions)
@@ -30,8 +33,8 @@ func initTestEnv() (err error) {
 	if err != nil {
 		return
 	}
-	server = New(database)
-	err = server.NewWorld(worldSimAddr, 10)
+	server = New(database, amzAddr)
+	err = server.NewWorld(worldAddr, 10)
 	if err != nil {
 		return
 	}

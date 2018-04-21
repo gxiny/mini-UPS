@@ -2,6 +2,7 @@ package server
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"net"
 
@@ -69,6 +70,24 @@ func (s *Server) HandleCommand(c *bridge.UCommands) (resp *bridge.UResponses) {
 		if err != nil {
 			return
 		}
+	}
+	return
+}
+
+func (s *Server) TellAmz(c *bridge.ACommands) (err error) {
+	conn, err := net.Dial("tcp", s.amz)
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+	_, err = pb.WriteProto(conn, c)
+	if err != nil {
+		return
+	}
+	r := new(bridge.AResponses)
+	_, err = pb.ReadProto(bufio.NewReader(conn), r)
+	if err == nil && r.Error != nil {
+		err = fmt.Errorf("amz: %s", *r.Error)
 	}
 	return
 }

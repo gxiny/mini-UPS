@@ -10,6 +10,7 @@ import (
 )
 
 type Server struct {
+	amz string
 	db  *sql.DB
 	ln  net.Listener
 	wg  sync.WaitGroup
@@ -18,10 +19,12 @@ type Server struct {
 }
 
 // New returns a new server.
-// Caller need to provide connections to the database.
+// Caller need to provide connections to the database,
+// and the address of the Amazon server.
 // It is not closed when the server is shut down.
-func New(db *sql.DB) *Server {
+func New(db *sql.DB, amz string) *Server {
 	return &Server{
+		amz: amz,
 		db: db,
 	}
 }

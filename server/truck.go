@@ -36,11 +36,14 @@ func (s *Server) initTrucks(n int32) error {
 }
 
 func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
-	var status db.TruckStatus
+	var (
+		status db.TruckStatus
+		warehouseId int32
+	)
 	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
 		// there isn't a concurrent-access issue; FOR UPDATE may not be necessary
-		const sql = `SELECT status FROM truck WHERE id = $1 FOR UPDATE`
-		err = tx.QueryRow(sql, truck).Scan(&status)
+		const sql = `SELECT status, warehouse_id FROM truck WHERE id = $1 FOR UPDATE`
+		err = tx.QueryRow(sql, truck).Scan(&status, &warehouseId)
 		if err != nil {
 			return
 		}
@@ -59,8 +62,19 @@ func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
 		err = truck.UpdatePos(tx, pos)
 		return
 	})
-	if err == nil && status == db.IDLE {
+	if err != nil {
+		return
+	}
+	switch status {
+	case db.IDLE:
 		err = s.schedTruck(truck)
+	case db.AT_WAREHOUSE:
+		err = s.TellAmz(&bridge.ACommands{
+			Arrival: &bridge.TruckArrival{
+				TruckId: proto.Int32(int32(truck)),
+				WarehouseId: &warehouseId,
+			},
+		})
 	}
 	return
 }
