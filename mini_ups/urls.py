@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^search/$', views.searchpage, name='searchpage'),
     url(r'^search_res/$',views.search_res, name='search_res'),
     url(r'^redirect/$',views.Redirectpage, name='Redirectpage'),
+    #url(r'^redirect/(?P<package_id>\d+)$',views.Redirectpage, name='Redirectpage'),
 ]

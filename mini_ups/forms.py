@@ -20,7 +20,9 @@ class SignUpForm(UserCreationForm): #UserCreationForm
 
 class SearchForm(forms.Form):
     tracking_number = forms.CharField()
-    
-class RedirectForm(forms.Form) :
+
+
+class RedirectForm(forms.Form):
+    tracking_number = forms.CharField()
     x = forms.IntegerField()
     y = forms.IntegerField()

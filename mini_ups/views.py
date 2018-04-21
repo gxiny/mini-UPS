@@ -18,6 +18,7 @@ worng_login = "Your username or email or password is wrong"
 worng_user = "The user is not alive"
 wrong_format = "should be number"
 
+
 # Create your views here.
 class UserForm(forms.Form):
     username = forms.CharField(label = 'username',max_length=50)
@@ -150,23 +151,27 @@ def searchpage(request) :
 def search_res(request) :
     return render(request,'search_res.html') 
     
-def Redirectpage(request,package_id) :
+def Redirectpage(request) :                 #,package_id) :
     if request.method == "POST":    
         form = RedirectForm(request.POST)
         if form.is_valid():
-           x = form.cleaned_data['x']
-           y = form.cleaned_data['y']
-           clientsocket = conn() 
-           command = ups_comm_pb2.FCommands() 
-           command.transfer.package_id = package_id
-           command.transfer.x = x
-           command.transfer.y = y 
-           send_mess = command.SerializeToString()
-           clientsocket.send(send_mess)
-           msg = clientsocket.recv(1024)
-           resp = ups_comm_pb2.FResponse()
-           resp.ParseFromString(msg)
-           redirect('/homepage/')
+            
+            package_id = form.cleaned_data['x']
+            x = form.cleaned_data['x']
+            y = form.cleaned_data['y']
+            clientsocket = conn() 
+            command = ups_comm_pb2.FCommands() 
+            command.transfer.package_id = package_id
+            command.transfer.x = x
+            command.transfer.y = y 
+            send_mess = command.SerializeToString()
+            clientsocket.send(send_mess)
+            msg = clientsocket.recv(1024)
+            resp = ups_comm_pb2.FResponse()
+            resp.ParseFromString(msg)
+            if resp.error is not None:
+                return render(request, 'redirect.html', {'wrong_message': resp.error})
+            redirect('/homepage/')
     else :
         form = RedirectForm()
     return render(request, 'redirect.html', {'form': form})
