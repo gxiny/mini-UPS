@@ -2,8 +2,8 @@ package server
 
 import (
 	"bufio"
-	"io"
 	"log"
+	"net"
 
 	"gitlab.oit.duke.edu/rz78/ups/pb"
 	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
@@ -22,7 +22,7 @@ func (s *Server) acceptConnections() {
 	}
 }
 
-func (s *Server) HandleConnection(conn io.ReadWriteCloser) {
+func (s *Server) HandleConnection(conn net.Conn) {
 	s.wg.Add(1)
 	defer s.wg.Done()
 	defer conn.Close()
@@ -34,8 +34,12 @@ func (s *Server) HandleConnection(conn io.ReadWriteCloser) {
 		log.Println(err)
 		return
 	}
+	log.Println(conn.RemoteAddr(), c)
 	r := s.HandleCommand(&c)
-	pb.WriteProto(conn, r)
+	_, err = pb.WriteProto(conn, r)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (s *Server) HandleCommand(c *bridge.UCommands) (resp *bridge.UResponses) {
