@@ -15,8 +15,9 @@ import (
 
 var (
 	dbOptions  = flag.String("db", "dbname=ups_server user=postgres password=passw0rd", "database options")
-	listenAddr = flag.String("l", ":23333", "listen address for communication with Amazon")
+	listenAddr = flag.String("l", ":23333", "listen address (for receving from amz)")
 	worldAddr  = flag.String("sim", ":12345", "world simulator address")
+	amzAddr    = flag.String("amz", ":2333", "amz server address (for sending)")
 	initTrucks = flag.Int("trucks", 10, "number of trucks if connecting to a new world")
 	forceInit  = flag.Bool("init", false, "always create a new world")
 )
@@ -31,7 +32,7 @@ func main() {
 	}
 	defer database.Close()
 
-	s := server.New(database)
+	s := server.New(database, *amzAddr)
 	if err != nil {
 		log.Println(err)
 		return
