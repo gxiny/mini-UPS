@@ -10,6 +10,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"gitlab.oit.duke.edu/rz78/ups/pb/amz"
+	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
 )
 
 type Scanner struct {
@@ -85,6 +86,7 @@ var parserMap = map[string]func(*Scanner) proto.Message{
 	"disconnect": parseDisconnect,
 	"simspeed":   parseSimSpeed,
 	"purchase":   parsePurchase,
+	"pkg":        parsePackage,
 }
 
 func ParseProto(s string) proto.Message {
@@ -174,5 +176,48 @@ func parsePurchase(sc *Scanner) proto.Message {
 	}
 	return &amz.Commands{
 		Buy: []*amz.PurchaseMore{msg},
+	}
+}
+
+// syntax: "pkg" warehouse_id ups_user_id x y {item_id description amount}
+// -1 means omitted for ups_user_id
+func parsePackage(sc *Scanner) proto.Message {
+	var (
+		whId  = sc.ScanInt(32)
+		upsId = sc.ScanInt(64)
+		x     = sc.ScanInt(32)
+		y     = sc.ScanInt(32)
+	)
+	if sc.ErrorCount > 0 {
+		return nil
+	}
+	pkg := &bridge.Package{
+		WarehouseId: proto.Int32(int32(whId)),
+		X:           proto.Int32(int32(x)),
+		Y:           proto.Int32(int32(y)),
+	}
+	if upsId != -1 {
+		pkg.UpsUserId = proto.Int64(upsId)
+	}
+	for {
+		if sc.Peek() == scanner.EOF {
+			break
+		}
+		var (
+			itId   = sc.ScanInt(64)
+			desc   = sc.ScanString()
+			amount = sc.ScanInt(32)
+		)
+		if sc.ErrorCount > 0 {
+			return nil
+		}
+		pkg.Items = append(pkg.Items, &bridge.Item{
+			ItemId:      &itId,
+			Description: &desc,
+			Amount:      proto.Int32(int32(amount)),
+		})
+	}
+	return &bridge.UCommands{
+		PackageIdReq: []*bridge.Package{pkg},
 	}
 }
