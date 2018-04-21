@@ -58,13 +58,12 @@ func (s *Server) HandleCommand(c *bridge.UCommands) (resp *bridge.UResponses) {
 			return
 		}
 	}
-	/* TODO(rz78)
 	if req := c.GetTruckReq(); req != nil {
-		err = s.TruckReq(req) // this one has no response
+		err = s.TruckReq(req.GetWarehouseId()) // this one has no response
 		if err != nil {
 			return
 		}
-	}*/
+	}
 	if req := c.GetLoaded(); req != nil {
 		err = s.onTruckLoaded(req)
 		if err != nil {

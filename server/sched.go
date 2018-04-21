@@ -27,8 +27,8 @@ func getWarehouseInNeed(tx *sql.Tx) (warehouseId int32, err error) {
 
 func getTruckForWarehouse(tx *sql.Tx, warehouseId int32) (truck db.Truck, status db.TruckStatus, err error) {
 	err = tx.QueryRow(`SELECT id, status FROM truck `+
-		`WHERE status <> '`+string(db.DELIVERING)+`' AND warehouse_id = $1 LIMIT 1 FOR UPDATE`,
-		warehouseId).Scan(&truck, &status)
+		`WHERE status IN ($1,$2) AND warehouse_id = $3 LIMIT 1 FOR UPDATE`,
+		db.TO_WAREHOUSE, db.AT_WAREHOUSE, warehouseId).Scan(&truck, &status)
 	switch err {
 	case nil: // found a truck
 		return
@@ -50,7 +50,39 @@ func getTruckForWarehouse(tx *sql.Tx, warehouseId int32) (truck db.Truck, status
 	return
 }
 
-func (s *Server) schedPickup() error {
+func (s *Server) schedTruck(truck db.Truck) error {
+	// when a truck is idle, look for where it should go
+	return db.WithTx(s.db, func(tx *sql.Tx) (err error) {
+		var status db.TruckStatus
+		err = tx.QueryRow(`SELECT status FROM truck WHERE id=$1`, truck).Scan(&status)
+		if err != nil {
+			return
+		}
+		if status != db.IDLE { // lost a race?
+			err = errNoIdleTruck
+			return
+		}
+		warehouseId, err := getWarehouseInNeed(tx)
+		if err != nil {
+			return
+		}
+		err = s.schedPickup(tx, truck, status, warehouseId)
+		return
+	})
+}
+
+func (s *Server) schedWarehouse(warehouseId int32) error {
+	return db.WithTx(s.db, func(tx *sql.Tx) (err error) {
+		truck, status, err := getTruckForWarehouse(tx, warehouseId)
+		if err != nil {
+			return
+		}
+		err = s.schedPickup(tx, truck, status, warehouseId)
+		return
+	})
+}
+
+func (s *Server) schedAny() error {
 	return db.WithTx(s.db, func(tx *sql.Tx) (err error) {
 		warehouseId, err := getWarehouseInNeed(tx)
 		if err != nil {
@@ -60,34 +92,41 @@ func (s *Server) schedPickup() error {
 		if err != nil {
 			return
 		}
-		result, err := tx.Exec(`UPDATE package SET truck_id = $1 WHERE warehouse_id = $2 AND truck_id IS NULL`,
-			truck, warehouseId)
-		if err != nil {
-			return
-		}
-		n, err := result.RowsAffected()
-		if err != nil {
-			return
-		}
-		if status == db.IDLE {
-			log.Println("Sending truck", truck, "to warehouse", warehouseId, "for", n, "packages")
-			err = truck.SendToWarehouse(tx, warehouseId)
-			if err != nil {
-				return
-			}
-		} else {
-			log.Print(n, " more package(s) for truck ", truck, " (warehouse ", warehouseId, ")")
-		}
-		// tx succeeds; tell the world
-		// what if world fails? (don't have much to do; maybe rollback)
-		err = s.WriteWorld(&ups.Commands{
-			Pickups: []*ups.GoPickup{
-				{
-					TruckId:     proto.Int32(int32(truck)),
-					WarehouseId: proto.Int32(warehouseId),
-				},
-			},
-		})
+		err = s.schedPickup(tx, truck, status, warehouseId)
 		return
 	})
+}
+
+func (s *Server) schedPickup(tx *sql.Tx, truck db.Truck, status db.TruckStatus, warehouseId int32) (err error) {
+	result, err := tx.Exec(`UPDATE package SET truck_id = $1 WHERE warehouse_id = $2 AND truck_id IS NULL`,
+		truck, warehouseId)
+	if err != nil {
+		return
+	}
+	n, err := result.RowsAffected()
+	if err != nil {
+		return
+	}
+	if n == 0 {
+		log.Println("no packages to pickup")
+	} else if status == db.IDLE {
+		log.Println("Sending truck", truck, "to warehouse", warehouseId, "for", n, "packages")
+		err = truck.SendToWarehouse(tx, warehouseId)
+		if err != nil {
+			return
+		}
+	} else {
+		log.Print(n, " more package(s) for truck ", truck, " (warehouse ", warehouseId, ")")
+	}
+	// tx succeeds; tell the world
+	// what if world fails? (don't have much to do; maybe rollback)
+	err = s.WriteWorld(&ups.Commands{
+		Pickups: []*ups.GoPickup{
+			{
+				TruckId:     proto.Int32(int32(truck)),
+				WarehouseId: proto.Int32(warehouseId),
+			},
+		},
+	})
+	return
 }

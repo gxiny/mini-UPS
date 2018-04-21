@@ -7,42 +7,42 @@ import (
 	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
 )
 
-func TestSchedTruck(t *testing.T) {
+func TestSchedAny(t *testing.T) {
 	_, err := server.PackageIdReq(&bridge.Package{
-		WarehouseId: proto.Int64(1),
+		WarehouseId: proto.Int32(1),
 		X:           proto.Int32(2333),
 		Y:           proto.Int32(6666),
 	})
 	if err != nil {
 		t.Error(err)
 	}
-	err = server.schedPickup()
+	err = server.schedAny()
 	if err != nil {
 		t.Error(err)
 	}
 
 	_, err = server.PackageIdReq(&bridge.Package{
-		WarehouseId: proto.Int64(1),
+		WarehouseId: proto.Int32(1),
 		X:           proto.Int32(2),
 		Y:           proto.Int32(3),
 	})
 	if err != nil {
 		t.Error(err)
 	}
-	err = server.schedPickup() // should be on the same truck
+	err = server.schedAny()
 	if err != nil {
 		t.Error(err)
 	}
 
 	_, err = server.PackageIdReq(&bridge.Package{
-		WarehouseId: proto.Int64(2),
+		WarehouseId: proto.Int32(2),
 		X:           proto.Int32(2),
 		Y:           proto.Int32(3),
 	})
 	if err != nil {
 		t.Error(err)
 	}
-	err = server.schedPickup() // should be on a different truck
+	err = server.schedAny()
 	if err != nil {
 		t.Error(err)
 	}
