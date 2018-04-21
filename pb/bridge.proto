@@ -21,7 +21,7 @@ message UCommands {
 }
 
 message UResponses {
-	required string error = 1; // empty means success
+	optional string error = 1;
 	repeated ResponsePackageId package_ids = 2;
 }
 
@@ -30,7 +30,7 @@ message ACommands {
 }
 
 message AResponses {
-	required string error = 1; // empty means success
+	optional string error = 1;
 }
 
 message ResponsePackageId {
