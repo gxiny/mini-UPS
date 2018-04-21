@@ -27,14 +27,23 @@ func (s *Server) NewWorld(addr string, initTrucks int32) (err error) {
 	if err != nil {
 		return
 	}
-	err = db.WithTx(s.db, func(tx *sql.Tx) error {
-		return db.SetMeta(tx, "world_id", strconv.FormatInt(worldId, 10))
+	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
+		db.DestroySchema(tx)
+		err = db.InitSchema(tx)
+		if err != nil {
+			return
+		}
+		err = db.SetMeta(tx, "world_id", strconv.FormatInt(worldId, 10))
+		if err != nil {
+			return
+		}
+		err = s.initTrucks(tx, initTrucks)
+		return
 	})
 	if err != nil {
 		return
 	}
 	log.Println("created world", worldId)
-	err = s.initTrucks(initTrucks)
 	return
 }
 

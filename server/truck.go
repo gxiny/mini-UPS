@@ -12,27 +12,25 @@ import (
 )
 
 // initTrucks will wait until info of n trucks are received
-func (s *Server) initTrucks(n int32) error {
-	return db.WithTx(s.db, func(tx *sql.Tx) (err error) {
-		for n > 0 {
-			resp := new(ups.Responses)
-			err = s.sim.ReadProto(resp)
+func (s *Server) initTrucks(tx *sql.Tx, n int32) (err error) {
+	for n > 0 {
+		resp := new(ups.Responses)
+		err = s.sim.ReadProto(resp)
+		if err != nil {
+			return
+		}
+		for _, v := range resp.GetCompletions() {
+			truck := db.Truck(v.GetTruckId())
+			pos := db.CoordXY(v)
+			err = truck.UpdatePos(tx, pos)
 			if err != nil {
 				return
 			}
-			for _, v := range resp.GetCompletions() {
-				truck := db.Truck(v.GetTruckId())
-				pos := db.CoordXY(v)
-				err = truck.UpdatePos(tx, pos)
-				if err != nil {
-					return
-				}
-				n--
-				log.Println("created truck", truck, "at", pos)
-			}
+			n--
+			log.Println("created truck", truck, "at", pos)
 		}
-		return
-	})
+	}
+	return
 }
 
 func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
