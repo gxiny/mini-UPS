@@ -28,14 +28,14 @@ func (s *Server) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	reader := bufio.NewReader(conn)
-	var c bridge.UCommands
-	_, err := pb.ReadProto(reader, &c)
+	c := new(bridge.UCommands)
+	_, err := pb.ReadProto(reader, c)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	log.Println(conn.RemoteAddr(), c)
-	r := s.HandleCommand(&c)
+	r := s.HandleCommand(c)
 	_, err = pb.WriteProto(conn, r)
 	if err != nil {
 		log.Println(err)
