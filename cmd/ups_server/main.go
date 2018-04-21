@@ -18,6 +18,7 @@ var (
 	listenAddr = flag.String("l", ":23333", "listen address for communication with Amazon")
 	worldAddr  = flag.String("sim", ":12345", "world simulator address")
 	initTrucks = flag.Int("trucks", 10, "number of trucks if connecting to a new world")
+	forceInit  = flag.Bool("init", false, "always create a new world")
 )
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 		return
 	}
 	worldId, err := s.GetWorldId()
-	if err != nil {
+	if err != nil || *forceInit {
 		err = s.NewWorld(*worldAddr, int32(*initTrucks))
 	} else {
 		err = s.ReconnectWorld(*worldAddr, worldId)
