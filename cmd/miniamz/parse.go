@@ -42,13 +42,28 @@ func (s *Scanner) Expect(expected rune) (token string) {
 }
 
 func (s *Scanner) ScanInt(bitSize int) int64 {
-	token := s.Expect(scanner.Int)
-	if token != "" {
+	scanned := s.Scan()
+	token := s.TokenText()
+	negative := false
+	if token == "-" {
+		negative = true
+		scanned = s.Scan()
+		token = s.TokenText()
+	}
+	if scanned == scanner.Int {
 		n, err := strconv.ParseInt(token, 10, bitSize)
 		if err != nil {
 			s.err("ParseInt fail: " + token)
 		}
+		if negative {
+			return -n
+		}
 		return n
+	} else {
+		s.err(fmt.Sprintf("near %s: expect %s, got %s",
+			token,
+			scanner.TokenString(scanner.Int),
+			scanner.TokenString(scanned)))
 	}
 	return 0
 }
