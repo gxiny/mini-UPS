@@ -101,8 +101,8 @@ func tellUPS(msg proto.Message) error {
 		return err
 	}
 	r := bufio.NewReader(conn)
-	var resp bridge.UResponses
-	_, err = pb.ReadProto(r, &resp)
+	resp := new(bridge.UResponses)
+	_, err = pb.ReadProto(r, resp)
 	if err != nil {
 		return err
 	}
