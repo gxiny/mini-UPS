@@ -19,103 +19,10 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='ups_comm.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x0eups_comm.proto\"\x1a\n\x05\x46User\x12\x11\n\tfusername\x18\x01 \x02(\t\"\x1c\n\x08\x46Package\x12\x10\n\x08\x62user_id\x18\x01 \x02(\x03\"\x1f\n\tFTracking\x12\x12\n\npackage_id\x18\x01 \x02(\x03\"5\n\tFTransfer\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"x\n\tFCommands\x12\x15\n\x05\x66user\x18\x01 \x01(\x0b\x32\x06.FUser\x12\x1b\n\x08\x62user_id\x18\x02 \x01(\x0b\x32\t.FPackage\x12\x19\n\x05track\x18\x03 \x01(\x0b\x32\n.FTracking\x12\x1c\n\x08transfer\x18\x04 \x01(\x0b\x32\n.FTransfer\"O\n\tFResponse\x12\x15\n\x05\x62user\x18\x01 \x01(\x0b\x32\x06.BUser\x12\x1c\n\tpack_info\x18\x02 \x03(\x0b\x32\t.BPackage\x12\r\n\x05\x65rror\x18\x03 \x01(\t\"\x19\n\x05\x42User\x12\x10\n\x08\x62user_id\x18\x02 \x02(\x03\"R\n\x08\x42Package\x12\x15\n\x06\x64\x65tail\x18\x01 \x03(\x0b\x32\x05.Item\x12\x12\n\npackage_id\x18\x02 \x02(\x03\x12\x1b\n\x06status\x18\x03 \x03(\x0b\x32\x0b.PackStatus\"+\n\x04Item\x12\x13\n\x0b\x64\x65scription\x18\x01 \x02(\t\x12\x0e\n\x06\x61mount\x18\x02 \x02(\x05\"\x1e\n\nPackStatus\x12\x10\n\x08progress\x18\x01 \x02(\t')
+  serialized_pb=_b('\n\x0eups_comm.proto\"5\n\tFTransfer\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"`\n\tFCommands\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\x03\x12\x12\n\npackage_id\x18\x03 \x01(\x03\x12\x1c\n\x08transfer\x18\x04 \x01(\x0b\x32\n.FTransfer\"I\n\tFResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x1c\n\tpack_info\x18\x02 \x03(\x0b\x32\t.BPackage\x12\r\n\x05\x65rror\x18\x03 \x01(\t\"R\n\x08\x42Package\x12\x15\n\x06\x64\x65tail\x18\x01 \x03(\x0b\x32\x05.Item\x12\x12\n\npackage_id\x18\x02 \x02(\x03\x12\x1b\n\x06status\x18\x03 \x03(\x0b\x32\x0b.PackStatus\"+\n\x04Item\x12\x13\n\x0b\x64\x65scription\x18\x01 \x02(\t\x12\x0e\n\x06\x61mount\x18\x02 \x02(\x05\"\x1e\n\nPackStatus\x12\x10\n\x08progress\x18\x01 \x02(\t')
 )
 
 
-
-
-_FUSER = _descriptor.Descriptor(
-  name='FUser',
-  full_name='FUser',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='fusername', full_name='FUser.fusername', index=0,
-      number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=18,
-  serialized_end=44,
-)
-
-
-_FPACKAGE = _descriptor.Descriptor(
-  name='FPackage',
-  full_name='FPackage',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='buser_id', full_name='FPackage.buser_id', index=0,
-      number=1, type=3, cpp_type=2, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=46,
-  serialized_end=74,
-)
-
-
-_FTRACKING = _descriptor.Descriptor(
-  name='FTracking',
-  full_name='FTracking',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='package_id', full_name='FTracking.package_id', index=0,
-      number=1, type=3, cpp_type=2, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=76,
-  serialized_end=107,
-)
 
 
 _FTRANSFER = _descriptor.Descriptor(
@@ -158,8 +65,8 @@ _FTRANSFER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=109,
-  serialized_end=162,
+  serialized_start=18,
+  serialized_end=71,
 )
 
 
@@ -171,23 +78,23 @@ _FCOMMANDS = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='fuser', full_name='FCommands.fuser', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='username', full_name='FCommands.username', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='buser_id', full_name='FCommands.buser_id', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='user_id', full_name='FCommands.user_id', index=1,
+      number=2, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='track', full_name='FCommands.track', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='package_id', full_name='FCommands.package_id', index=2,
+      number=3, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -210,8 +117,8 @@ _FCOMMANDS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=164,
-  serialized_end=284,
+  serialized_start=73,
+  serialized_end=169,
 )
 
 
@@ -223,9 +130,9 @@ _FRESPONSE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='buser', full_name='FResponse.buser', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='user_id', full_name='FResponse.user_id', index=0,
+      number=1, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -255,39 +162,8 @@ _FRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=286,
-  serialized_end=365,
-)
-
-
-_BUSER = _descriptor.Descriptor(
-  name='BUser',
-  full_name='BUser',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='buser_id', full_name='BUser.buser_id', index=0,
-      number=2, type=3, cpp_type=2, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=367,
-  serialized_end=392,
+  serialized_start=171,
+  serialized_end=244,
 )
 
 
@@ -331,8 +207,8 @@ _BPACKAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=394,
-  serialized_end=476,
+  serialized_start=246,
+  serialized_end=328,
 )
 
 
@@ -369,8 +245,8 @@ _ITEM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=478,
-  serialized_end=521,
+  serialized_start=330,
+  serialized_end=373,
 )
 
 
@@ -400,50 +276,21 @@ _PACKSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=523,
-  serialized_end=553,
+  serialized_start=375,
+  serialized_end=405,
 )
 
-_FCOMMANDS.fields_by_name['fuser'].message_type = _FUSER
-_FCOMMANDS.fields_by_name['buser_id'].message_type = _FPACKAGE
-_FCOMMANDS.fields_by_name['track'].message_type = _FTRACKING
 _FCOMMANDS.fields_by_name['transfer'].message_type = _FTRANSFER
-_FRESPONSE.fields_by_name['buser'].message_type = _BUSER
 _FRESPONSE.fields_by_name['pack_info'].message_type = _BPACKAGE
 _BPACKAGE.fields_by_name['detail'].message_type = _ITEM
 _BPACKAGE.fields_by_name['status'].message_type = _PACKSTATUS
-DESCRIPTOR.message_types_by_name['FUser'] = _FUSER
-DESCRIPTOR.message_types_by_name['FPackage'] = _FPACKAGE
-DESCRIPTOR.message_types_by_name['FTracking'] = _FTRACKING
 DESCRIPTOR.message_types_by_name['FTransfer'] = _FTRANSFER
 DESCRIPTOR.message_types_by_name['FCommands'] = _FCOMMANDS
 DESCRIPTOR.message_types_by_name['FResponse'] = _FRESPONSE
-DESCRIPTOR.message_types_by_name['BUser'] = _BUSER
 DESCRIPTOR.message_types_by_name['BPackage'] = _BPACKAGE
 DESCRIPTOR.message_types_by_name['Item'] = _ITEM
 DESCRIPTOR.message_types_by_name['PackStatus'] = _PACKSTATUS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
-FUser = _reflection.GeneratedProtocolMessageType('FUser', (_message.Message,), dict(
-  DESCRIPTOR = _FUSER,
-  __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:FUser)
-  ))
-_sym_db.RegisterMessage(FUser)
-
-FPackage = _reflection.GeneratedProtocolMessageType('FPackage', (_message.Message,), dict(
-  DESCRIPTOR = _FPACKAGE,
-  __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:FPackage)
-  ))
-_sym_db.RegisterMessage(FPackage)
-
-FTracking = _reflection.GeneratedProtocolMessageType('FTracking', (_message.Message,), dict(
-  DESCRIPTOR = _FTRACKING,
-  __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:FTracking)
-  ))
-_sym_db.RegisterMessage(FTracking)
 
 FTransfer = _reflection.GeneratedProtocolMessageType('FTransfer', (_message.Message,), dict(
   DESCRIPTOR = _FTRANSFER,
@@ -465,13 +312,6 @@ FResponse = _reflection.GeneratedProtocolMessageType('FResponse', (_message.Mess
   # @@protoc_insertion_point(class_scope:FResponse)
   ))
 _sym_db.RegisterMessage(FResponse)
-
-BUser = _reflection.GeneratedProtocolMessageType('BUser', (_message.Message,), dict(
-  DESCRIPTOR = _BUSER,
-  __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:BUser)
-  ))
-_sym_db.RegisterMessage(BUser)
 
 BPackage = _reflection.GeneratedProtocolMessageType('BPackage', (_message.Message,), dict(
   DESCRIPTOR = _BPACKAGE,

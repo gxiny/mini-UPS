@@ -58,16 +58,16 @@ def comm_ups(username) :
     clientsocket = conn()
     
     command = ups_comm_pb2.FCommands()
-    command.fuser.fusername = username
+    command.username = username
     send_mess = command.SerializeToString()
     clientsocket.send(send_mess)
     msg = clientsocket.recv(1024)
     resp = ups_comm_pb2.FResponse()
     resp.ParseFromString(msg)
-    print(resp.buser.buser_id)
+    print(resp.user_id)
     user_id = user_id_recv (
         username = username,
-        user_id_recv = resp.buser.buser_id,
+        user_id_recv = resp.user_id,
         )
     user_id.save()
     #return resp.buser_id
@@ -93,9 +93,9 @@ def signin(request):
                 login(request, user)
                 return redirect('/home/')
             else:
-                return render(request,'wrong.html',{'wrong_message':worng_user})
+                return render(request,'wrong.html',{'uf':uf,'wrong_message':worng_user})
         else:
-            return render(request,'wrong.html',{'wrong_message':worng_login})                    
+            return render(request,'wrong.html',{'uf':uf,'wrong_message':worng_login})                    
     else:
         uf = UserForm()
     return render (request,'login.html',{'uf':uf})
@@ -117,14 +117,15 @@ def homepage(request):
     clientsocket = conn()
     
     command = ups_comm_pb2.FCommands()
-    command.buser_id.buser_id = user_id.user_id_recv
+    command.user_id = user_id.user_id_recv
     send_mess = command.SerializeToString()
     clientsocket.send(send_mess)
     
     msg = clientsocket.recv(1024)
     resp = ups_comm_pb2.FResponse()
     resp.ParseFromString(msg)
-    test = (resp.pack_info)    
+    test = (resp.pack_info) 
+    clientsocket.close()   
     return render (request,'homepage.html',{'username':username,'test':resp.pack_info})
 
 def searchpage(request) :
@@ -133,18 +134,19 @@ def searchpage(request) :
         if form.is_valid():
             tracking_num = form.cleaned_data['tracking_number']
             if re.match(r'^[-]?\d+$', tracking_num) == None :
-                return render(request, 'search.html', {'wrong_message': wrong_format})
+                return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
             else :
                 clientsocket = conn() 
                 command = ups_comm_pb2.FCommands()
-                command.track.package_id = int(tracking_num)
+                command.package_id = int(tracking_num)
                 send_mess = command.SerializeToString()
                 clientsocket.send(send_mess)
                 msg = clientsocket.recv(1024)
                 resp = ups_comm_pb2.FResponse()
                 resp.ParseFromString(msg)
-                if resp.error is not None:
-                    return render(request, 'search.html', {'wrong_message': resp.error})    
+                clientsocket.close()
+                if resp.error is not "":
+                    return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
                 test = (resp.pack_info)      
                 return render(request, 'search_res.html',{'test':resp.pack_info})
     else :
@@ -174,9 +176,10 @@ def Redirectpage(request) :                 #,package_id) :
             msg = clientsocket.recv(1024)
             resp = ups_comm_pb2.FResponse()
             resp.ParseFromString(msg)
-            if resp.error is not None:
-                return render(request, 'redirect.html', {'wrong_message': resp.error})
-            redirect('/homepage/')
+            clientsocket.close()
+            if resp.error is not "":
+                return render(request, 'redirect.html', {'form': form,'wrong_message': resp.error})
+            return redirect('/home/')
     else :
         form = RedirectForm()
     return render(request, 'redirect.html', {'form': form})
