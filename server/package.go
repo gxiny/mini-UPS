@@ -26,9 +26,16 @@ func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackage
 	resp = new(bridge.ResponsePackageId)
 	// TODO(rz78): package detail is ignored
 	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
-		var pkgId db.Package
+		var (
+			pkgId db.Package
+			userId sql.NullInt64
+		)
 		items := convertItems(pkg.GetItems())
-		err = pkgId.Create(tx, items, db.CoordXY(pkg), pkg.GetWarehouseId())
+		if pkg.UpsUserId != nil {
+			userId.Valid = true
+			userId.Int64 = *pkg.UpsUserId
+		}
+		err = pkgId.Create(tx, items, db.CoordXY(pkg), userId, pkg.GetWarehouseId())
 		if err != nil {
 			return
 		}
