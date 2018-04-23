@@ -27,13 +27,25 @@ func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackage
 	// TODO(rz78): package detail is ignored
 	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
 		var pkgId db.Package
-		err = pkgId.Create(tx, "N/A", db.CoordXY(pkg), pkg.GetWarehouseId())
+		items := convertItems(pkg.GetItems())
+		err = pkgId.Create(tx, items, db.CoordXY(pkg), pkg.GetWarehouseId())
 		if err != nil {
 			return
 		}
 		resp.PackageId = proto.Int64(int64(pkgId))
 		return
 	})
+	return
+}
+
+func convertItems(items []*bridge.Item) (r *db.PackageItems) {
+	r = new(db.PackageItems)
+	for _, item := range items {
+		r.Items = append(r.Items, &db.PackageItem{
+			Description: item.Description,
+			Count: item.Amount,
+		})
+	}
 	return
 }
 
