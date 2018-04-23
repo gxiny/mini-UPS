@@ -1,4 +1,5 @@
 message PkgDest {
+	required 
         required int64 package_id = 1;
         required int32 x = 2;
         required int32 y = 3;

@@ -18,6 +18,10 @@ worng_login = "Your username or email or password is wrong"
 worng_user = "The user is not alive"
 wrong_format = "should be number"
 
+try:
+    from io import BytesIO
+except ImportError:
+    from StringIO import StringIO as BytesIO
 
 # Create your views here.
 class UserForm(forms.Form):
@@ -25,10 +29,44 @@ class UserForm(forms.Form):
     email = forms.CharField(label = 'email',max_length=50)
     password = forms.CharField(label = 'password',max_length=50,widget=forms.PasswordInput())
 
+def encode(number):
+    buf = []
+    while True:
+        towrite = number & 0x7f
+        number >>= 7
+        if number:
+            buf.append(towrite | 0x80)
+        else:
+            buf.append(towrite)
+            break
+    return bytes(buf)
+    
+def decode_stream(stream):
+    """Read a varint from `stream`"""
+    shift = 0
+    result = 0
+    while True:
+        i = _read_one(stream)
+        result |= (i & 0x7f) << shift
+        shift += 7
+        if not (i & 0x80):
+            break
 
+    return result
+    
+def _read_one(stream):
+    """Read a byte from the file (as an integer)
+    raises EOFError if the stream ends while reading bytes.
+    """
+    c = stream.recv(1)
+    if c == b'':
+        raise EOFError("Unexpected EOF while reading bytes")
+    return ord(c)
+ 
 def conn() :
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
+    host = "vcm-3878.vm.duke.edu"
+    print(host)
     port = 8080
     clientsocket.connect((host,port))
     return clientsocket
@@ -43,39 +81,45 @@ def regist(request):
             #get data
             uf.save()
             username = uf.cleaned_data.get('username')
-            password = uf.cleaned_data.get('password1')
-            first_name = uf.cleaned_data.get('first_name')
-            last_name = uf.cleaned_data.get('last_name')
-            email = uf.cleaned_data.get('email')
-            comm_ups(username)
+            command = ups_comm_pb2.Request()
+            command.new_user = username
+            resp = comm_ups(command)
+            print(resp.user_id)
+            user_id = user_id_recv (
+                username = username,
+                user_id_recv = resp.user_id,
+            )
+            user_id.save()
             #return render(request,'homepage.html',{'uf':uf})
             return redirect('/login/')        
     else:
         uf = SignUpForm()
     return render (request,'regist.html',{'uf':uf})
 
-def comm_ups(username) :
-    clientsocket = conn()
-    
-    command = ups_comm_pb2.Request()
-    command.new_user = username
+def comm_ups(command) :
+    clientsocket = conn() 
     send_mess = command.SerializeToString()
+    leng = encode(len(send_mess))
+    print(leng)
+    clientsocket.send(leng)
     clientsocket.send(send_mess)
-    msg = clientsocket.recv(1024)
+    res = decode_stream(clientsocket)
+    print(res)
+    msg = clientsocket.recv(res)
     resp = ups_comm_pb2.Response()
     resp.ParseFromString(msg)
-    print(resp.user_id)
-    user_id = user_id_recv (
-        username = username,
-        user_id_recv = resp.user_id,
-        )
-    user_id.save()
+    
     #return resp.buser_id
     clientsocket.close()
+    return resp
     
 
 
 def signin(request):
+    if request.user is not None:
+        if request.user.is_active:
+            login(request, request.user)
+            return redirect('/home/')
     if request.method == 'POST':
         uf = UserForm(request.POST)
        # uf = UserCreationForm(request.POST)
@@ -114,18 +158,10 @@ def homepage(request):
     user_id = user_id_recv.objects.get(username = username)
     print(user_id.user_id_recv)
     
-    clientsocket = conn()
-    
     command = ups_comm_pb2.Request()
     command.get_packages = user_id.user_id_recv
-    send_mess = command.SerializeToString()
-    clientsocket.send(send_mess)
-    
-    msg = clientsocket.recv(1024)
-    resp = ups_comm_pb2.Response()
-    resp.ParseFromString(msg)
-    test = (resp.packages) 
-    clientsocket.close()   
+    resp = comm_ups(command)
+    test = (resp.packages)    
     return render (request,'homepage.html',{'username':username,'test':resp.packages})
 
 def searchpage(request) :
@@ -136,18 +172,14 @@ def searchpage(request) :
             if re.match(r'^[-]?\d+$', tracking_num) == None :
                 return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
             else :
-                clientsocket = conn() 
+                
                 command = ups_comm_pb2.Request()
                 command.get_package_status = int(tracking_num)
-                send_mess = command.SerializeToString()
-                clientsocket.send(send_mess)
-                msg = clientsocket.recv(1024)
-                resp = ups_comm_pb2.Response()
-                resp.ParseFromString(msg)
-                clientsocket.close()
+                resp = comm_ups(command)
+                
                 if resp.error is not "":
                     return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
-                test = (resp.pack_info)      
+                test = (resp.packages)      
                 return render(request, 'search_res.html',{'test':resp.packages})
     else :
         form = SearchForm()
@@ -158,7 +190,7 @@ def searchpage(request) :
 def search_res(request) :
     return render(request,'search_res.html') 
     
-def Redirectpage(request) :                 #,package_id) :
+def Redirectpage(request) :
     if request.method == "POST":    
         form = RedirectForm(request.POST)
         if form.is_valid():
@@ -166,17 +198,13 @@ def Redirectpage(request) :                 #,package_id) :
             package_id = form.cleaned_data['x']
             x = form.cleaned_data['x']
             y = form.cleaned_data['y']
-            clientsocket = conn() 
+           
             command = ups_comm_pb2.Request() 
-            command.change_destionation.package_id = package_id
-            command.change_destionation.x = x
-            command.change_destionation.y = y 
-            send_mess = command.SerializeToString()
-            clientsocket.send(send_mess)
-            msg = clientsocket.recv(1024)
-            resp = ups_comm_pb2.Response()
-            resp.ParseFromString(msg)
-            clientsocket.close()
+            command.change_destination.package_id = package_id
+            command.change_destination.x = x
+            command.change_destination.y = y 
+            resp = comm_ups(command)
+            
             if resp.error is not "":
                 return render(request, 'redirect.html', {'form': form,'wrong_message': resp.error})
             return redirect('/home/')
