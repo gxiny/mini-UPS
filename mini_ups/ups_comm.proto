@@ -1,33 +1,38 @@
-message FTransfer {
-	required int64 package_id = 1;
-	required int32 x = 2;
-	required int32 y = 3;
+message PkgDest {
+        required int64 package_id = 1;
+        required int32 x = 2;
+        required int32 y = 3;
 }
 
-message FCommands {
-        optional string username = 1;
-	optional int64 user_id = 2;
-	optional int64 package_id = 3;
-	optional FTransfer transfer = 4;
+message Request {
+        optional string new_user = 1; // string contains username
+        optional int64 get_packages = 2; // int64 contains user id
+        optional int64 get_package_status = 3; // int64 contains package id
+        optional PkgDest change_destination = 4;
 }
 
-message FResponse {
-	optional int64 user_id = 1;
-	repeated BPackage pack_info = 2;
-	optional string error = 3;
-}
-
-message BPackage {
-	repeated Item detail = 1;
-	required int64 package_id = 2;
-	repeated PackStatus status = 3; 
+message Response {
+        optional int64 user_id = 1; // the created user id
+        repeated Package packages = 2;
+        optional string error = 3;
 }
 
 message Item {
-	required string description = 1;
-	required int32 amount = 2;
+        required string description = 1;
+        required int32 amount = 2;
 }
 
-message PackStatus {
-	required string progress = 1;
+message PkgDetail {
+        repeated Item items = 1;
+}
+       
+message Package {
+        required int64 package_id = 1;
+        required PkgDetail detail = 2;
+        repeated Status status = 3;
+}
+
+message Status {
+        required string status = 1;
+        optional int64 timestamp = 2;
 }
