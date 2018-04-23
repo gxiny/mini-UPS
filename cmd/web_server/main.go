@@ -14,7 +14,7 @@ import (
 
 var (
 	dbOptions  = flag.String("db", "dbname=ups_server user=postgres password=passw0rd", "database options")
-	listenAddr = flag.String("l", "8080", "listen address")
+	listenAddr = flag.String("l", ":8080", "listen address")
 )
 
 var database *sql.DB
