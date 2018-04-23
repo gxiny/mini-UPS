@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
@@ -22,7 +23,7 @@ func TestPackage(t *testing.T) {
 			},
 		},
 	}
-	err = pkg.Create(tx, items, Coord{3, 4}, 1)
+	err = pkg.Create(tx, items, Coord{3, 4}, sql.NullInt64{}, 1)
 	if err != nil {
 		t.Error(err)
 	}

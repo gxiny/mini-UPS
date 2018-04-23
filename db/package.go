@@ -41,10 +41,11 @@ func (c *PackageItems) Value() (value driver.Value, err error) {
 
 // Create creates a new package, setting its creation time to current time.
 // The receiver is modified to the ID of the new package.
-func (id *Package) Create(tx *sql.Tx, items *PackageItems, destination Coord, warehouseId int32) error {
-	const querySQL = `INSERT INTO package(items, destination, warehouse_id, create_time) VALUES($1,$2,$3,$4) RETURNING id`
+func (id *Package) Create(tx *sql.Tx, items *PackageItems, destination Coord, userId sql.NullInt64, warehouseId int32) error {
+	const querySQL = `INSERT INTO package(items, destination, user_id, warehouse_id, create_time)`+
+		`VALUES($1,$2,$3,$4,$5) RETURNING id`
 	now := time.Now()
-	return tx.QueryRow(querySQL, items, destination, warehouseId, now.Unix()).Scan(id)
+	return tx.QueryRow(querySQL, items, destination, userId, warehouseId, now.Unix()).Scan(id)
 }
 
 // SetDelivered sets delivery time of the package to current time.
