@@ -97,6 +97,8 @@ func (s *Server) schedAny() error {
 	})
 }
 
+var errNoPackage = errors.New("no packages to pickup")
+
 func (s *Server) schedPickup(tx *sql.Tx, truck db.Truck, status db.TruckStatus, warehouseId int32) (err error) {
 	result, err := tx.Exec(`UPDATE package SET truck_id = $1 WHERE warehouse_id = $2 AND truck_id IS NULL`,
 		truck, warehouseId)
@@ -108,25 +110,26 @@ func (s *Server) schedPickup(tx *sql.Tx, truck db.Truck, status db.TruckStatus, 
 		return
 	}
 	if n == 0 {
-		log.Println("no packages to pickup")
+		err = errNoPackage
+		return
 	} else if status == db.IDLE {
 		log.Println("Sending truck", truck, "to warehouse", warehouseId, "for", n, "packages")
 		err = truck.SendToWarehouse(tx, warehouseId)
 		if err != nil {
 			return
 		}
+		// tx succeeds; tell the world
+		// what if world fails? (don't have much to do; maybe rollback)
+		err = s.WriteWorld(&ups.Commands{
+			Pickups: []*ups.GoPickup{
+				{
+					TruckId:     proto.Int32(int32(truck)),
+					WarehouseId: proto.Int32(warehouseId),
+				},
+			},
+		})
 	} else {
 		log.Print(n, " more package(s) for truck ", truck, " (warehouse ", warehouseId, ")")
 	}
-	// tx succeeds; tell the world
-	// what if world fails? (don't have much to do; maybe rollback)
-	err = s.WriteWorld(&ups.Commands{
-		Pickups: []*ups.GoPickup{
-			{
-				TruckId:     proto.Int32(int32(truck)),
-				WarehouseId: proto.Int32(warehouseId),
-			},
-		},
-	})
 	return
 }
