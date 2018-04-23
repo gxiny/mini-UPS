@@ -1,0 +1,10 @@
+package db;
+
+message PackageItems {
+	repeated PackageItem items = 1;
+}
+
+message PackageItem {
+	required string description = 1;
+	required int32 count = 2;
+}

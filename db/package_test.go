@@ -2,6 +2,8 @@ package db
 
 import (
 	"testing"
+
+	"github.com/golang/protobuf/proto"
 )
 
 func TestPackage(t *testing.T) {
@@ -12,9 +14,23 @@ func TestPackage(t *testing.T) {
 	defer tx.Rollback()
 
 	var pkg Package
-	err = pkg.Create(tx, []byte("abc123"), Coord{3, 4}, 1)
+	items := &PackageItems{
+		Items: []*PackageItem{
+			{
+				Description: proto.String("abc"),
+				Count: proto.Int32(123),
+			},
+		},
+	}
+	err = pkg.Create(tx, items, Coord{3, 4}, 1)
 	if err != nil {
 		t.Error(err)
+	}
+	items1 := new(PackageItems)
+	err = tx.QueryRow(`SELECT items FROM package WHERE id = $1`,
+		pkg).Scan(items1)
+	if !proto.Equal(items, items1) {
+		t.Errorf("%v != %v", items, items1)
 	}
 
 	err = pkg.SetDelivered(tx)
