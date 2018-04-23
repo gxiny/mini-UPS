@@ -19,35 +19,35 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='ups_comm.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x0eups_comm.proto\"5\n\tFTransfer\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"`\n\tFCommands\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\x03\x12\x12\n\npackage_id\x18\x03 \x01(\x03\x12\x1c\n\x08transfer\x18\x04 \x01(\x0b\x32\n.FTransfer\"I\n\tFResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x1c\n\tpack_info\x18\x02 \x03(\x0b\x32\t.BPackage\x12\r\n\x05\x65rror\x18\x03 \x01(\t\"R\n\x08\x42Package\x12\x15\n\x06\x64\x65tail\x18\x01 \x03(\x0b\x32\x05.Item\x12\x12\n\npackage_id\x18\x02 \x02(\x03\x12\x1b\n\x06status\x18\x03 \x03(\x0b\x32\x0b.PackStatus\"+\n\x04Item\x12\x13\n\x0b\x64\x65scription\x18\x01 \x02(\t\x12\x0e\n\x06\x61mount\x18\x02 \x02(\x05\"\x1e\n\nPackStatus\x12\x10\n\x08progress\x18\x01 \x02(\t')
+  serialized_pb=_b('\n\x0eups_comm.proto\"3\n\x07PkgDest\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"s\n\x07Request\x12\x10\n\x08new_user\x18\x01 \x01(\t\x12\x14\n\x0cget_packages\x18\x02 \x01(\x03\x12\x1a\n\x12get_package_status\x18\x03 \x01(\x03\x12$\n\x12\x63hange_destination\x18\x04 \x01(\x0b\x32\x08.PkgDest\"F\n\x08Response\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x1a\n\x08packages\x18\x02 \x03(\x0b\x32\x08.Package\x12\r\n\x05\x65rror\x18\x03 \x01(\t\"+\n\x04Item\x12\x13\n\x0b\x64\x65scription\x18\x01 \x02(\t\x12\x0e\n\x06\x61mount\x18\x02 \x02(\x05\"7\n\tPkgDetail\x12\x14\n\x05items\x18\x01 \x03(\x0b\x32\x05.Item\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"R\n\x07Package\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\x1a\n\x06\x64\x65tail\x18\x02 \x02(\x0b\x32\n.PkgDetail\x12\x17\n\x06status\x18\x03 \x03(\x0b\x32\x07.Status\"+\n\x06Status\x12\x0e\n\x06status\x18\x01 \x02(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x03')
 )
 
 
 
 
-_FTRANSFER = _descriptor.Descriptor(
-  name='FTransfer',
-  full_name='FTransfer',
+_PKGDEST = _descriptor.Descriptor(
+  name='PkgDest',
+  full_name='PkgDest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='package_id', full_name='FTransfer.package_id', index=0,
+      name='package_id', full_name='PkgDest.package_id', index=0,
       number=1, type=3, cpp_type=2, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='x', full_name='FTransfer.x', index=1,
+      name='x', full_name='PkgDest.x', index=1,
       number=2, type=5, cpp_type=1, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='y', full_name='FTransfer.y', index=2,
+      name='y', full_name='PkgDest.y', index=2,
       number=3, type=5, cpp_type=1, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -66,40 +66,40 @@ _FTRANSFER = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=18,
-  serialized_end=71,
+  serialized_end=69,
 )
 
 
-_FCOMMANDS = _descriptor.Descriptor(
-  name='FCommands',
-  full_name='FCommands',
+_REQUEST = _descriptor.Descriptor(
+  name='Request',
+  full_name='Request',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='username', full_name='FCommands.username', index=0,
+      name='new_user', full_name='Request.new_user', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='user_id', full_name='FCommands.user_id', index=1,
+      name='get_packages', full_name='Request.get_packages', index=1,
       number=2, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='package_id', full_name='FCommands.package_id', index=2,
+      name='get_package_status', full_name='Request.get_package_status', index=2,
       number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='transfer', full_name='FCommands.transfer', index=3,
+      name='change_destination', full_name='Request.change_destination', index=3,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -117,34 +117,34 @@ _FCOMMANDS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=73,
-  serialized_end=169,
+  serialized_start=71,
+  serialized_end=186,
 )
 
 
-_FRESPONSE = _descriptor.Descriptor(
-  name='FResponse',
-  full_name='FResponse',
+_RESPONSE = _descriptor.Descriptor(
+  name='Response',
+  full_name='Response',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='user_id', full_name='FResponse.user_id', index=0,
+      name='user_id', full_name='Response.user_id', index=0,
       number=1, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pack_info', full_name='FResponse.pack_info', index=1,
+      name='packages', full_name='Response.packages', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='error', full_name='FResponse.error', index=2,
+      name='error', full_name='Response.error', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -162,53 +162,8 @@ _FRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=171,
-  serialized_end=244,
-)
-
-
-_BPACKAGE = _descriptor.Descriptor(
-  name='BPackage',
-  full_name='BPackage',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='detail', full_name='BPackage.detail', index=0,
-      number=1, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='package_id', full_name='BPackage.package_id', index=1,
-      number=2, type=3, cpp_type=2, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='status', full_name='BPackage.status', index=2,
-      number=3, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=246,
-  serialized_end=328,
+  serialized_start=188,
+  serialized_end=258,
 )
 
 
@@ -245,22 +200,36 @@ _ITEM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=330,
-  serialized_end=373,
+  serialized_start=260,
+  serialized_end=303,
 )
 
 
-_PACKSTATUS = _descriptor.Descriptor(
-  name='PackStatus',
-  full_name='PackStatus',
+_PKGDETAIL = _descriptor.Descriptor(
+  name='PkgDetail',
+  full_name='PkgDetail',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='progress', full_name='PackStatus.progress', index=0,
-      number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      name='items', full_name='PkgDetail.items', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='x', full_name='PkgDetail.x', index=1,
+      number=2, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='y', full_name='PkgDetail.y', index=2,
+      number=3, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -276,49 +245,127 @@ _PACKSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=375,
-  serialized_end=405,
+  serialized_start=305,
+  serialized_end=360,
 )
 
-_FCOMMANDS.fields_by_name['transfer'].message_type = _FTRANSFER
-_FRESPONSE.fields_by_name['pack_info'].message_type = _BPACKAGE
-_BPACKAGE.fields_by_name['detail'].message_type = _ITEM
-_BPACKAGE.fields_by_name['status'].message_type = _PACKSTATUS
-DESCRIPTOR.message_types_by_name['FTransfer'] = _FTRANSFER
-DESCRIPTOR.message_types_by_name['FCommands'] = _FCOMMANDS
-DESCRIPTOR.message_types_by_name['FResponse'] = _FRESPONSE
-DESCRIPTOR.message_types_by_name['BPackage'] = _BPACKAGE
+
+_PACKAGE = _descriptor.Descriptor(
+  name='Package',
+  full_name='Package',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='package_id', full_name='Package.package_id', index=0,
+      number=1, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='detail', full_name='Package.detail', index=1,
+      number=2, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='status', full_name='Package.status', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=362,
+  serialized_end=444,
+)
+
+
+_STATUS = _descriptor.Descriptor(
+  name='Status',
+  full_name='Status',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status', full_name='Status.status', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='Status.timestamp', index=1,
+      number=2, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=446,
+  serialized_end=489,
+)
+
+_REQUEST.fields_by_name['change_destination'].message_type = _PKGDEST
+_RESPONSE.fields_by_name['packages'].message_type = _PACKAGE
+_PKGDETAIL.fields_by_name['items'].message_type = _ITEM
+_PACKAGE.fields_by_name['detail'].message_type = _PKGDETAIL
+_PACKAGE.fields_by_name['status'].message_type = _STATUS
+DESCRIPTOR.message_types_by_name['PkgDest'] = _PKGDEST
+DESCRIPTOR.message_types_by_name['Request'] = _REQUEST
+DESCRIPTOR.message_types_by_name['Response'] = _RESPONSE
 DESCRIPTOR.message_types_by_name['Item'] = _ITEM
-DESCRIPTOR.message_types_by_name['PackStatus'] = _PACKSTATUS
+DESCRIPTOR.message_types_by_name['PkgDetail'] = _PKGDETAIL
+DESCRIPTOR.message_types_by_name['Package'] = _PACKAGE
+DESCRIPTOR.message_types_by_name['Status'] = _STATUS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-FTransfer = _reflection.GeneratedProtocolMessageType('FTransfer', (_message.Message,), dict(
-  DESCRIPTOR = _FTRANSFER,
+PkgDest = _reflection.GeneratedProtocolMessageType('PkgDest', (_message.Message,), dict(
+  DESCRIPTOR = _PKGDEST,
   __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:FTransfer)
+  # @@protoc_insertion_point(class_scope:PkgDest)
   ))
-_sym_db.RegisterMessage(FTransfer)
+_sym_db.RegisterMessage(PkgDest)
 
-FCommands = _reflection.GeneratedProtocolMessageType('FCommands', (_message.Message,), dict(
-  DESCRIPTOR = _FCOMMANDS,
+Request = _reflection.GeneratedProtocolMessageType('Request', (_message.Message,), dict(
+  DESCRIPTOR = _REQUEST,
   __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:FCommands)
+  # @@protoc_insertion_point(class_scope:Request)
   ))
-_sym_db.RegisterMessage(FCommands)
+_sym_db.RegisterMessage(Request)
 
-FResponse = _reflection.GeneratedProtocolMessageType('FResponse', (_message.Message,), dict(
-  DESCRIPTOR = _FRESPONSE,
+Response = _reflection.GeneratedProtocolMessageType('Response', (_message.Message,), dict(
+  DESCRIPTOR = _RESPONSE,
   __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:FResponse)
+  # @@protoc_insertion_point(class_scope:Response)
   ))
-_sym_db.RegisterMessage(FResponse)
-
-BPackage = _reflection.GeneratedProtocolMessageType('BPackage', (_message.Message,), dict(
-  DESCRIPTOR = _BPACKAGE,
-  __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:BPackage)
-  ))
-_sym_db.RegisterMessage(BPackage)
+_sym_db.RegisterMessage(Response)
 
 Item = _reflection.GeneratedProtocolMessageType('Item', (_message.Message,), dict(
   DESCRIPTOR = _ITEM,
@@ -327,12 +374,26 @@ Item = _reflection.GeneratedProtocolMessageType('Item', (_message.Message,), dic
   ))
 _sym_db.RegisterMessage(Item)
 
-PackStatus = _reflection.GeneratedProtocolMessageType('PackStatus', (_message.Message,), dict(
-  DESCRIPTOR = _PACKSTATUS,
+PkgDetail = _reflection.GeneratedProtocolMessageType('PkgDetail', (_message.Message,), dict(
+  DESCRIPTOR = _PKGDETAIL,
   __module__ = 'ups_comm_pb2'
-  # @@protoc_insertion_point(class_scope:PackStatus)
+  # @@protoc_insertion_point(class_scope:PkgDetail)
   ))
-_sym_db.RegisterMessage(PackStatus)
+_sym_db.RegisterMessage(PkgDetail)
+
+Package = _reflection.GeneratedProtocolMessageType('Package', (_message.Message,), dict(
+  DESCRIPTOR = _PACKAGE,
+  __module__ = 'ups_comm_pb2'
+  # @@protoc_insertion_point(class_scope:Package)
+  ))
+_sym_db.RegisterMessage(Package)
+
+Status = _reflection.GeneratedProtocolMessageType('Status', (_message.Message,), dict(
+  DESCRIPTOR = _STATUS,
+  __module__ = 'ups_comm_pb2'
+  # @@protoc_insertion_point(class_scope:Status)
+  ))
+_sym_db.RegisterMessage(Status)
 
 
 # @@protoc_insertion_point(module_scope)

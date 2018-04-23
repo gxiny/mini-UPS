@@ -24,6 +24,8 @@ message Item {
 
 message PkgDetail {
         repeated Item items = 1;
+	required int32 x = 2;
+	required int32 y = 3;
 }
        
 message Package {

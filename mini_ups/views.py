@@ -29,7 +29,7 @@ class UserForm(forms.Form):
 def conn() :
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
-    port = 9005
+    port = 8080
     clientsocket.connect((host,port))
     return clientsocket
 
@@ -57,12 +57,12 @@ def regist(request):
 def comm_ups(username) :
     clientsocket = conn()
     
-    command = ups_comm_pb2.FCommands()
-    command.username = username
+    command = ups_comm_pb2.Request()
+    command.new_user = username
     send_mess = command.SerializeToString()
     clientsocket.send(send_mess)
     msg = clientsocket.recv(1024)
-    resp = ups_comm_pb2.FResponse()
+    resp = ups_comm_pb2.Response()
     resp.ParseFromString(msg)
     print(resp.user_id)
     user_id = user_id_recv (
@@ -116,17 +116,17 @@ def homepage(request):
     
     clientsocket = conn()
     
-    command = ups_comm_pb2.FCommands()
-    command.user_id = user_id.user_id_recv
+    command = ups_comm_pb2.Request()
+    command.get_packages = user_id.user_id_recv
     send_mess = command.SerializeToString()
     clientsocket.send(send_mess)
     
     msg = clientsocket.recv(1024)
-    resp = ups_comm_pb2.FResponse()
+    resp = ups_comm_pb2.Response()
     resp.ParseFromString(msg)
-    test = (resp.pack_info) 
+    test = (resp.packages) 
     clientsocket.close()   
-    return render (request,'homepage.html',{'username':username,'test':resp.pack_info})
+    return render (request,'homepage.html',{'username':username,'test':resp.packages})
 
 def searchpage(request) :
     if request.method == "POST":    
@@ -137,18 +137,18 @@ def searchpage(request) :
                 return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
             else :
                 clientsocket = conn() 
-                command = ups_comm_pb2.FCommands()
-                command.package_id = int(tracking_num)
+                command = ups_comm_pb2.Request()
+                command.get_package_status = int(tracking_num)
                 send_mess = command.SerializeToString()
                 clientsocket.send(send_mess)
                 msg = clientsocket.recv(1024)
-                resp = ups_comm_pb2.FResponse()
+                resp = ups_comm_pb2.Response()
                 resp.ParseFromString(msg)
                 clientsocket.close()
                 if resp.error is not "":
                     return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
                 test = (resp.pack_info)      
-                return render(request, 'search_res.html',{'test':resp.pack_info})
+                return render(request, 'search_res.html',{'test':resp.packages})
     else :
         form = SearchForm()
         
@@ -167,14 +167,14 @@ def Redirectpage(request) :                 #,package_id) :
             x = form.cleaned_data['x']
             y = form.cleaned_data['y']
             clientsocket = conn() 
-            command = ups_comm_pb2.FCommands() 
-            command.transfer.package_id = package_id
-            command.transfer.x = x
-            command.transfer.y = y 
+            command = ups_comm_pb2.Request() 
+            command.change_destionation.package_id = package_id
+            command.change_destionation.x = x
+            command.change_destionation.y = y 
             send_mess = command.SerializeToString()
             clientsocket.send(send_mess)
             msg = clientsocket.recv(1024)
-            resp = ups_comm_pb2.FResponse()
+            resp = ups_comm_pb2.Response()
             resp.ParseFromString(msg)
             clientsocket.close()
             if resp.error is not "":
