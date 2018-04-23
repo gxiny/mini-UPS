@@ -8,7 +8,7 @@ import (
 var PackageTable = sqlObject{
 	`TABLE`, `package`, `(
 	id BIGSERIAL PRIMARY KEY,
-	detail TEXT,
+	detail BYTEA NOT NULL,
 	destination coordinate NOT NULL,
 	user_id BIGINT REFERENCES "user"(id),
 	warehouse_id INTEGER NOT NULL,
@@ -21,7 +21,7 @@ type Package int64
 
 // Create creates a new package, setting its creation time to current time.
 // The receiver is modified to the ID of the new package.
-func (id *Package) Create(tx *sql.Tx, detail string, destination Coord, warehouseId int32) error {
+func (id *Package) Create(tx *sql.Tx, detail []byte, destination Coord, warehouseId int32) error {
 	const querySQL = `INSERT INTO package(detail, destination, warehouse_id, create_time) VALUES($1,$2,$3,$4) RETURNING id`
 	now := time.Now()
 	return tx.QueryRow(querySQL, detail, destination, warehouseId, now.Unix()).Scan(id)
