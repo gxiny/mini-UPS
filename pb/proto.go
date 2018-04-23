@@ -5,6 +5,7 @@ package pb
 //go:generate protoc --go_out=amz amz.proto
 //go:generate protoc --go_out=ups ups.proto
 //go:generate protoc --go_out=bridge bridge.proto
+//go:generate protoc --go_out=web web.proto
 
 import (
 	"encoding/binary"
