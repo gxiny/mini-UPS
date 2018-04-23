@@ -35,7 +35,7 @@ func (s *Server) initTrucks(tx *sql.Tx, n int32) (err error) {
 
 func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
 	var (
-		status db.TruckStatus
+		status      db.TruckStatus
 		warehouseId int32
 	)
 	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
@@ -69,7 +69,7 @@ func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
 	case db.AT_WAREHOUSE:
 		err = s.TellAmz(&bridge.UCommands{
 			Arrival: &bridge.TruckArrival{
-				TruckId: proto.Int32(int32(truck)),
+				TruckId:     proto.Int32(int32(truck)),
 				WarehouseId: &warehouseId,
 			},
 		})

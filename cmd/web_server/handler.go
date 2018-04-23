@@ -84,7 +84,7 @@ func pkgQuery(database *sql.DB, query string, args ...interface{}) (resp *web.Re
 			pkg := &web.Package{
 				PackageId: &pkgId,
 				Detail: &web.PkgDetail{
-					Items:  convertItems(&items),
+					Items: convertItems(&items),
 				},
 				Status: convertStatus(ctime, dtime, status),
 			}
@@ -125,7 +125,7 @@ func convertStatus(ctime int64, dtime sql.NullInt64, status *db.TruckStatus) (r 
 		}
 	} else {
 		r = append(r, &web.Status{
-			Status: proto.String("delivered"),
+			Status:    proto.String("delivered"),
 			Timestamp: &dtime.Int64,
 		})
 	}

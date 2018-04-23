@@ -32,7 +32,7 @@ type Truck int32
 // UpdatePos update the last-known position of a truck.
 // If the truck does not exist, create one.
 func (id Truck) UpdatePos(tx *sql.Tx, pos Coord) error {
-	const sql = `INSERT INTO truck(id, last_pos) VALUES($1,$2) `+
+	const sql = `INSERT INTO truck(id, last_pos) VALUES($1,$2) ` +
 		`ON CONFLICT (id) DO UPDATE SET last_pos = EXCLUDED.last_pos`
 	_, err := tx.Exec(sql, id, pos)
 	return err

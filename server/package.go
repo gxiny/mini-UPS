@@ -15,7 +15,7 @@ func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackage
 	// TODO(rz78): package detail is ignored
 	err := db.WithTx(s.db, func(tx *sql.Tx) (err error) {
 		var (
-			pkgId db.Package
+			pkgId  db.Package
 			userId sql.NullInt64
 		)
 		items := convertItems(pkg.GetItems())
@@ -43,7 +43,7 @@ func convertItems(items []*bridge.Item) (r *db.PackageItems) {
 	for _, item := range items {
 		r.Items = append(r.Items, &db.PackageItem{
 			Description: item.Description,
-			Count: item.Amount,
+			Count:       item.Amount,
 		})
 	}
 	return

@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"testing"
 
-	_ "github.com/lib/pq"
 	"github.com/golang/protobuf/proto"
+	_ "github.com/lib/pq"
 	"gitlab.oit.duke.edu/rz78/ups/db"
 	"gitlab.oit.duke.edu/rz78/ups/pb/web"
 )
@@ -51,15 +51,15 @@ func TestNewUser(t *testing.T) {
 
 func TestPackages(t *testing.T) {
 	var (
-		user db.User
-		truck db.Truck
+		user       db.User
+		truck      db.Truck
 		pkg1, pkg2 db.Package
 	)
 	items1 := &db.PackageItems{
 		Items: []*db.PackageItem{
 			{
 				Description: proto.String("all of programming"),
-				Count: proto.Int32(10),
+				Count:       proto.Int32(10),
 			},
 		},
 	}
@@ -67,11 +67,11 @@ func TestPackages(t *testing.T) {
 		Items: []*db.PackageItem{
 			{
 				Description: proto.String("orange chicken"),
-				Count: proto.Int32(1),
+				Count:       proto.Int32(1),
 			},
 			{
 				Description: proto.String("broccoli beef"),
-				Count: proto.Int32(1),
+				Count:       proto.Int32(1),
 			},
 		},
 	}
@@ -119,8 +119,8 @@ func TestPackages(t *testing.T) {
 	req = &web.Request{
 		ChangeDestination: &web.PkgDest{
 			PackageId: proto.Int64(int64(pkg1)),
-			X: proto.Int32(99),
-			Y: proto.Int32(100),
+			X:         proto.Int32(99),
+			Y:         proto.Int32(100),
 		},
 	}
 	resp = handleRequest(testdb, req)

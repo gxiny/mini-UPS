@@ -57,7 +57,7 @@ func (w *Sim) Connect(addr string, connect proto.Message, connected Connected) (
 }
 
 // Close closes the connection to the simulator.
-// To properly disconnect from the simulator (not crash it), 
+// To properly disconnect from the simulator (not crash it),
 // send a message which contains "disconnect:true"
 // and make sure you have received "finished:true" before calling Close.
 func (w *Sim) Close() error {
@@ -91,7 +91,7 @@ var responsesType = reflect.TypeOf((*Responses)(nil)).Elem()
 // is received.  Therefore, one can safely close the connection
 // after reading all messages from the channel.
 // Don't call ReadChan more than once on a Sim object.
-func (w *Sim) ReadChan(typ reflect.Type) (<-chan proto.Message) {
+func (w *Sim) ReadChan(typ reflect.Type) <-chan proto.Message {
 	if !typ.Implements(responsesType) {
 		panic("response type does not implement Responses")
 	}

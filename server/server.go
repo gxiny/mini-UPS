@@ -25,7 +25,7 @@ type Server struct {
 func New(db *sql.DB, amz string) *Server {
 	return &Server{
 		amz: amz,
-		db: db,
+		db:  db,
 	}
 }
 

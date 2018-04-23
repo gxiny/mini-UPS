@@ -292,7 +292,7 @@ func parseLoaded(sc *Scanner) proto.Message {
 	trId := sc.ScanInt(32)
 	whId := sc.ScanInt(32)
 	msg := &bridge.PackagesLoaded{
-		TruckId: proto.Int32(int32(trId)),
+		TruckId:     proto.Int32(int32(trId)),
 		WarehouseId: proto.Int32(int32(whId)),
 	}
 	for {

@@ -19,7 +19,7 @@ func TestPackage(t *testing.T) {
 		Items: []*PackageItem{
 			{
 				Description: proto.String("abc"),
-				Count: proto.Int32(123),
+				Count:       proto.Int32(123),
 			},
 		},
 	}
