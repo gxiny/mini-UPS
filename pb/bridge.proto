@@ -14,23 +14,20 @@ message Package {
 	repeated Item items = 5;
 }
 
-message UCommands {
-	repeated Package package_id_req = 1;
-	optional RequestTruck truck_req = 2;
-	optional PackagesLoaded loaded = 3;
+message RequestTruck {
+	required int32 warehouse_id = 1;
 }
 
-message UResponses {
-	optional string error = 1;
-	repeated ResponsePackageId package_ids = 2;
+message PackagesLoaded {
+	required int32 truck_id = 1;
+	required int32 warehouse_id = 2;
+	repeated int64 package_ids = 3;
 }
 
 message ACommands {
-	optional TruckArrival arrival = 1;
-}
-
-message AResponses {
-	optional string error = 1;
+	optional Package package_id_req = 1;
+	optional RequestTruck truck_req = 2;
+	optional PackagesLoaded loaded = 3;
 }
 
 message ResponsePackageId {
@@ -38,8 +35,14 @@ message ResponsePackageId {
 	optional string error = 2;
 }
 
-message RequestTruck {
-	required int32 warehouse_id = 1;
+message Acknowledgement {
+	required bool success = 1;
+	optional string error = 2;
+}
+
+message UResponses {
+	optional ResponsePackageId package_id = 1;
+	optional Acknowledgement ack = 2;
 }
 
 message TruckArrival {
@@ -47,7 +50,15 @@ message TruckArrival {
 	required int32 warehouse_id = 2;
 }
 
-message PackagesLoaded {
-	repeated int64 package_ids = 1;
-	required int32 truck_id = 2;
+message Delivery {
+	required int64 package_id = 1;
+}
+
+message UCommands {
+	optional TruckArrival arrival = 1;
+	optional Delivery delivered = 2;
+}
+
+message AResponses {
+	optional Acknowledgement ack = 1;
 }

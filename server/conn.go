@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 
+	"github.com/golang/protobuf/proto"
 	"gitlab.oit.duke.edu/rz78/ups/pb"
 	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
 )
@@ -29,7 +30,7 @@ func (s *Server) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	reader := bufio.NewReader(conn)
-	c := new(bridge.UCommands)
+	c := new(bridge.ACommands)
 	_, err := pb.ReadProto(reader, c)
 	if err != nil {
 		log.Println(err)
@@ -43,38 +44,32 @@ func (s *Server) HandleConnection(conn net.Conn) {
 	}
 }
 
-func (s *Server) HandleCommand(c *bridge.UCommands) (resp *bridge.UResponses) {
+func (s *Server) HandleCommand(c *bridge.ACommands) (resp *bridge.UResponses) {
 	resp = new(bridge.UResponses)
-	var err error
-	defer func() {
-		if err != nil {
-			s := err.Error()
-			log.Println(s)
-			resp.Error = &s
-		}
-	}()
 	if req := c.GetPackageIdReq(); req != nil {
-		resp.PackageIds, err = s.PackageIdReqs(req)
-		if err != nil {
-			return
-		}
-	}
-	if req := c.GetTruckReq(); req != nil {
-		err = s.TruckReq(req.GetWarehouseId()) // this one has no response
-		if err != nil {
-			return
-		}
-	}
-	if req := c.GetLoaded(); req != nil {
-		err = s.onTruckLoaded(req)
-		if err != nil {
-			return
-		}
+		resp.PackageId = s.PackageIdReq(req)
+	} else if req := c.GetTruckReq(); req != nil {
+		err := s.TruckReq(req.GetWarehouseId())
+		resp.Ack = errorToAck(err)
+	} else if req := c.GetLoaded(); req != nil {
+		err := s.onTruckLoaded(req)
+		resp.Ack = errorToAck(err)
 	}
 	return
 }
 
-func (s *Server) TellAmz(c *bridge.ACommands) (err error) {
+func errorToAck(err error) *bridge.Acknowledgement {
+	var ack bridge.Acknowledgement
+	if err == nil {
+		ack.Success = proto.Bool(true)
+	} else {
+		ack.Success = proto.Bool(false)
+		ack.Error = proto.String(err.Error())
+	}
+	return &ack
+}
+
+func (s *Server) TellAmz(c *bridge.UCommands) (err error) {
 	conn, err := net.Dial("tcp", s.amz)
 	if err != nil {
 		return
@@ -86,8 +81,8 @@ func (s *Server) TellAmz(c *bridge.ACommands) (err error) {
 	}
 	r := new(bridge.AResponses)
 	_, err = pb.ReadProto(bufio.NewReader(conn), r)
-	if err == nil && r.Error != nil {
-		err = fmt.Errorf("amz: %s", *r.Error)
+	if err == nil && !r.GetAck().GetSuccess() {
+		err = fmt.Errorf("amz: %s", r.GetAck().GetError())
 	}
 	return
 }

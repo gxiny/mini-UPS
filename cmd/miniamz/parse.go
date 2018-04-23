@@ -269,8 +269,8 @@ func parsePackage(sc *Scanner) proto.Message {
 			Amount:      proto.Int32(int32(amount)),
 		})
 	}
-	return &bridge.UCommands{
-		PackageIdReq: []*bridge.Package{pkg},
+	return &bridge.ACommands{
+		PackageIdReq: pkg,
 	}
 }
 
@@ -280,18 +280,20 @@ func parseTruckReq(sc *Scanner) proto.Message {
 	if sc.ErrorCount > 0 {
 		return nil
 	}
-	return &bridge.UCommands{
+	return &bridge.ACommands{
 		TruckReq: &bridge.RequestTruck{
 			WarehouseId: proto.Int32(int32(whId)),
 		},
 	}
 }
 
-// syntax: "loaded" truck_id {package_id}
+// syntax: "loaded" truck_id warehouse_id {package_id}
 func parseLoaded(sc *Scanner) proto.Message {
 	trId := sc.ScanInt(32)
+	whId := sc.ScanInt(32)
 	msg := &bridge.PackagesLoaded{
 		TruckId: proto.Int32(int32(trId)),
+		WarehouseId: proto.Int32(int32(whId)),
 	}
 	for {
 		if sc.Peek() == scanner.EOF {
@@ -303,7 +305,7 @@ func parseLoaded(sc *Scanner) proto.Message {
 		}
 		msg.PackageIds = append(msg.PackageIds, pkgId)
 	}
-	return &bridge.UCommands{
+	return &bridge.ACommands{
 		Loaded: msg,
 	}
 }

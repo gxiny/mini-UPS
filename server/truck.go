@@ -67,7 +67,7 @@ func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
 	case db.IDLE:
 		err = s.schedTruck(truck)
 	case db.AT_WAREHOUSE:
-		err = s.TellAmz(&bridge.ACommands{
+		err = s.TellAmz(&bridge.UCommands{
 			Arrival: &bridge.TruckArrival{
 				TruckId: proto.Int32(int32(truck)),
 				WarehouseId: &warehouseId,

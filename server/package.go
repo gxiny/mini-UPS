@@ -2,30 +2,18 @@ package server
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/golang/protobuf/proto"
 	"gitlab.oit.duke.edu/rz78/ups/db"
 	"gitlab.oit.duke.edu/rz78/ups/pb/bridge"
 )
 
-// PackageIdReqs produces tracking numbers for multiple packages.
-func (s *Server) PackageIdReqs(packages []*bridge.Package) (resp []*bridge.ResponsePackageId, err error) {
-	resp = make([]*bridge.ResponsePackageId, len(packages))
-	for i, pkg := range packages {
-		resp[i], err = s.PackageIdReq(pkg)
-		if err != nil {
-			s := err.Error()
-			resp[i].Error = &s
-		}
-	}
-	return
-}
-
 // PackageIdReq produces a tracking number for one package.
-func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackageId, err error) {
+func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackageId) {
 	resp = new(bridge.ResponsePackageId)
 	// TODO(rz78): package detail is ignored
-	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
+	err := db.WithTx(s.db, func(tx *sql.Tx) (err error) {
 		var (
 			pkgId db.Package
 			userId sql.NullInt64
@@ -42,6 +30,11 @@ func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackage
 		resp.PackageId = proto.Int64(int64(pkgId))
 		return
 	})
+	if err != nil {
+		s := err.Error()
+		log.Println(s)
+		resp.Error = &s
+	}
 	return
 }
 

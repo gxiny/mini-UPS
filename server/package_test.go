@@ -9,22 +9,19 @@ import (
 )
 
 func TestPackageIdReqs(t *testing.T) {
-	resp, err := server.PackageIdReqs([]*bridge.Package{
-		{
-			WarehouseId: proto.Int32(1),
-			X:           proto.Int32(233),
-			Y:           proto.Int32(666),
-		},
+	resp := server.PackageIdReq(&bridge.Package{
+		WarehouseId: proto.Int32(1),
+		X:           proto.Int32(233),
+		Y:           proto.Int32(666),
 	})
-	if err != nil {
-		t.Error(err)
+	if e := resp.Error; e != nil {
+		t.Error(*e)
 	}
-	pkgId := resp[0]
 	var (
 		whId  int64
 		coord db.Coord
 	)
-	err = database.QueryRow(`SELECT warehouse_id, destination FROM package WHERE id = $1`, pkgId.GetPackageId()).Scan(&whId, &coord)
+	err := database.QueryRow(`SELECT warehouse_id, destination FROM package WHERE id = $1`, resp.GetPackageId()).Scan(&whId, &coord)
 	if err != nil {
 		t.Error(err)
 	}

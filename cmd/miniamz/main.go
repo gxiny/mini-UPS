@@ -50,7 +50,7 @@ func main() {
 			switch msg.(type) {
 			case *amz.Commands:
 				err = tellWorld(msg)
-			case *bridge.UCommands:
+			case *bridge.ACommands:
 				err = tellUPS(msg)
 			default:
 				err = fmt.Errorf("unknown message %T", msg)
@@ -73,14 +73,16 @@ func listenUPS() {
 		if err != nil {
 			log.Println(err)
 		}
-		msg := new(bridge.ACommands)
+		msg := new(bridge.UCommands)
 		_, err = pb.ReadProto(bufio.NewReader(conn), msg)
 		if err != nil {
 			log.Println(err)
 		} else {
 			log.Println("ups:", msg)
 		}
-		_, err = pb.WriteProto(conn, &bridge.AResponses{})
+		_, err = pb.WriteProto(conn, &bridge.AResponses{
+			Ack: &bridge.Acknowledgement{Success: proto.Bool(true)},
+		})
 		if err != nil {
 			log.Println(err)
 		}
