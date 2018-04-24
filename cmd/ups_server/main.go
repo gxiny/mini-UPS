@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	_ "github.com/lib/pq"
 	"gitlab.oit.duke.edu/rz78/ups/server"
@@ -32,6 +33,8 @@ func main() {
 	}
 	defer database.Close()
 
+	waitForDB(database)
+
 	s := server.New(database, *amzAddr)
 	if err != nil {
 		log.Println(err)
@@ -55,4 +58,15 @@ func main() {
 	<-ch
 
 	s.Stop()
+}
+
+func waitForDB(database *sql.DB) {
+	for {
+		err := database.Ping()
+		if err == nil {
+			return
+		}
+		log.Println("wait for database:", err)
+		time.Sleep(3 * time.Second)
+	}
 }
