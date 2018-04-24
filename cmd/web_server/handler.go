@@ -68,15 +68,15 @@ func pkgQuery(database *sql.DB, query string, args ...interface{}) (resp *web.Re
 			return
 		}
 		defer rows.Close()
-		var (
-			pkgId  int64
-			items  db.PackageItems
-			dest   db.Coord // TODO: include dest in the response
-			ctime  int64
-			dtime  sql.NullInt64
-			status *db.TruckStatus
-		)
 		for rows.Next() {
+			var (
+				pkgId  int64
+				items  db.PackageItems
+				dest   db.Coord // TODO: include dest in the response
+				ctime  int64
+				dtime  sql.NullInt64
+				status *db.TruckStatus
+			)
 			err = rows.Scan(&pkgId, &items, &dest, &ctime, &dtime, &status)
 			if err != nil {
 				return
