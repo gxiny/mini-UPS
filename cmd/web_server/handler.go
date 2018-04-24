@@ -91,8 +91,8 @@ func pkgQuery(database *sql.DB, query string, args ...interface{}) (resp *web.Re
 				PackageId: &pkgId,
 				Detail: &web.PkgDetail{
 					Items: convertItems(&items),
-					X: &dest.X,
-					Y: &dest.Y,
+					X:     &dest.X,
+					Y:     &dest.Y,
 				},
 				Status: convertStatus(ctime, dtime, status),
 			}
@@ -141,9 +141,9 @@ func convertStatus(ctime int64, dtime sql.NullInt64, status *db.TruckStatus) (r 
 }
 
 var (
-	errPkgDelivered = errors.New("package is delivered")
+	errPkgDelivered  = errors.New("package is delivered")
 	errPkgDelivering = errors.New("package is out for delivery")
-	errPermDenied = errors.New("permission denied")
+	errPermDenied    = errors.New("permission denied")
 )
 
 func handleChangeDestination(database *sql.DB, dest *web.PkgDest) (resp *web.Response, err error) {

@@ -285,8 +285,8 @@ func parseTruckReq(sc *Scanner) proto.Message {
 	return &bridge.ACommands{
 		TruckReq: &bridge.RequestTruck{
 			WarehouseId: proto.Int32(int32(whId)),
-			X: proto.Int32(int32(x)),
-			Y: proto.Int32(int32(y)),
+			X:           proto.Int32(int32(x)),
+			Y:           proto.Int32(int32(y)),
 		},
 	}
 }
