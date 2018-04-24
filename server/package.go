@@ -50,7 +50,12 @@ func convertItems(items []*bridge.Item) (r *db.PackageItems) {
 }
 
 func (s *Server) onPackageDelivered(pkg db.Package) error {
-	return db.WithTx(s.db, func(tx *sql.Tx) error {
+	return db.WithTx(s.db, func(tx *sql.Tx) (err error) {
+		err = s.TellAmz(&bridge.UCommands{
+			Delivered: &bridge.Delivery{
+				PackageId: proto.Int64(int64(pkg)),
+			},
+		})
 		return pkg.SetDelivered(tx)
 	})
 }
