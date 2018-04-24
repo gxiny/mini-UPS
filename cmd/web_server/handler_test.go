@@ -119,6 +119,7 @@ func TestPackages(t *testing.T) {
 	req = &web.Request{
 		ChangeDestination: &web.PkgDest{
 			PackageId: proto.Int64(int64(pkg1)),
+			UserId:    proto.Int64(int64(user)),
 			X:         proto.Int32(99),
 			Y:         proto.Int32(100),
 		},
@@ -141,8 +142,8 @@ func TestPackages(t *testing.T) {
 		t.Fatal(err)
 	}
 	resp = handleRequest(testdb, req) // cannot change because package is being delivered
-	if e := resp.Error; e == nil || *e != errCannotChangeDest.Error() {
-		t.Errorf("resp.Error = %v", e)
+	if e := resp.Error; e == nil || *e != errPkgDelivering.Error() {
+		t.Errorf("resp.Error = %v", resp.GetError())
 	}
 	err = db.WithTx(testdb, func(tx *sql.Tx) error {
 		truck.UpdateStatus(tx, db.IDLE)
@@ -152,8 +153,8 @@ func TestPackages(t *testing.T) {
 		t.Fatal(err)
 	}
 	resp = handleRequest(testdb, req) // cannot change because package is delivered
-	if e := resp.Error; e == nil || *e != errCannotChangeDest.Error() {
-		t.Errorf("resp.Error = %v", e)
+	if e := resp.Error; e == nil || *e != errPkgDelivered.Error() {
+		t.Errorf("resp.Error = %v", resp.GetError())
 	}
 
 	// requesting all package for a user
