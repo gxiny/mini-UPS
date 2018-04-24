@@ -55,8 +55,14 @@ func handleGetPackages(database *sql.DB, userId int64) (resp *web.Response, err 
 	return pkgQuery(database, pkgCommonSQL+`package.user_id = $1`, userId)
 }
 
+var errInvalidPkgId = errors.New("invalid package id")
+
 func handleGetPackageStatus(database *sql.DB, pkgId int64) (resp *web.Response, err error) {
-	return pkgQuery(database, pkgCommonSQL+`package.id = $1`, pkgId)
+	resp, err = pkgQuery(database, pkgCommonSQL+`package.id = $1`, pkgId)
+	if err == nil && len(resp.GetPackages()) == 0 {
+		err = errInvalidPkgId
+	}
+	return
 }
 
 func pkgQuery(database *sql.DB, query string, args ...interface{}) (resp *web.Response, err error) {
@@ -85,6 +91,8 @@ func pkgQuery(database *sql.DB, query string, args ...interface{}) (resp *web.Re
 				PackageId: &pkgId,
 				Detail: &web.PkgDetail{
 					Items: convertItems(&items),
+					X: &dest.X,
+					Y: &dest.Y,
 				},
 				Status: convertStatus(ctime, dtime, status),
 			}
@@ -132,28 +140,35 @@ func convertStatus(ctime int64, dtime sql.NullInt64, status *db.TruckStatus) (r 
 	return
 }
 
-var errCannotChangeDest = errors.New("cannot change destination")
+var (
+	errPkgDelivered = errors.New("package is delivered")
+	errPkgDelivering = errors.New("package is out for delivery")
+	errPermDenied = errors.New("permission denied")
+)
 
 func handleChangeDestination(database *sql.DB, dest *web.PkgDest) (resp *web.Response, err error) {
 	resp = new(web.Response)
 	err = db.WithTx(database, func(tx *sql.Tx) (err error) {
 		var (
-			dtime sql.NullInt64
-			truck *db.Truck
+			dtime  sql.NullInt64
+			userId sql.NullInt64
+			truck  *db.Truck
 		)
-		err = tx.QueryRow(`SELECT deliver_time, truck_id FROM package WHERE id = $1 FOR UPDATE`,
-			dest.PackageId).Scan(&dtime, &truck)
+		err = tx.QueryRow(`SELECT deliver_time, user_id, truck_id FROM package WHERE id = $1 FOR UPDATE`,
+			dest.PackageId).Scan(&dtime, &userId, &truck)
 		if err != nil {
 			return
 		}
-		if dtime.Valid { // delivered
-			err = errCannotChangeDest
+		if !userId.Valid || dest.GetUserId() != userId.Int64 {
+			err = errPermDenied
+		} else if dtime.Valid { // delivered
+			err = errPkgDelivered
 		} else if truck != nil {
 			var status db.TruckStatus
 			err = tx.QueryRow(`SELECT status FROM truck WHERE id = $1 FOR SHARE`,
 				*truck).Scan(&status)
 			if err == nil && status == db.DELIVERING { // delivering
-				err = errCannotChangeDest
+				err = errPkgDelivering
 			}
 		}
 		if err != nil {
