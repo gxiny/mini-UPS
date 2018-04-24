@@ -274,15 +274,19 @@ func parsePackage(sc *Scanner) proto.Message {
 	}
 }
 
-// syntax: "truckreq" warehouse_id
+// syntax: "truckreq" warehouse_id x y
 func parseTruckReq(sc *Scanner) proto.Message {
 	whId := sc.ScanInt(32)
+	x := sc.ScanInt(32)
+	y := sc.ScanInt(32)
 	if sc.ErrorCount > 0 {
 		return nil
 	}
 	return &bridge.ACommands{
 		TruckReq: &bridge.RequestTruck{
 			WarehouseId: proto.Int32(int32(whId)),
+			X: proto.Int32(int32(x)),
+			Y: proto.Int32(int32(y)),
 		},
 	}
 }
