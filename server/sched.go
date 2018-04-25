@@ -16,9 +16,10 @@ var (
 )
 
 func getWarehouseInNeed(tx *sql.Tx) (warehouseId int32, err error) {
+	// get a warehouse which has not-loaded-yet packages
 	err = tx.QueryRow(`SELECT warehouse_id FROM package ` +
-		`WHERE truck_id IS NULL ORDER BY create_time ASC LIMIT 1 FOR UPDATE`).
-		Scan(&warehouseId)
+		`WHERE truck_id IS NULL ORDER BY create_time ASC `+
+		`LIMIT 1 FOR UPDATE`).Scan(&warehouseId)
 	if err == sql.ErrNoRows {
 		err = errNoWarehouse
 	}
@@ -97,10 +98,11 @@ func (s *Server) schedAny() error {
 	})
 }
 
-var errNoPackage = errors.New("no packages to pickup")
+var errNoPkgPickup = errors.New("no packages to pickup")
 
 func (s *Server) schedPickup(tx *sql.Tx, truck db.Truck, status db.TruckStatus, warehouseId int32) (err error) {
-	result, err := tx.Exec(`UPDATE package SET truck_id = $1 WHERE warehouse_id = $2 AND truck_id IS NULL`,
+	result, err := tx.Exec(`UPDATE package SET truck_id = $1 `+
+		`WHERE warehouse_id = $2 AND truck_id IS NULL`,
 		truck, warehouseId)
 	if err != nil {
 		return
@@ -110,10 +112,11 @@ func (s *Server) schedPickup(tx *sql.Tx, truck db.Truck, status db.TruckStatus, 
 		return
 	}
 	if n == 0 {
-		err = errNoPackage
+		err = errNoPkgPickup
 		return
-	} else if status == db.IDLE {
-		log.Println("Sending truck", truck, "to warehouse", warehouseId, "for", n, "packages")
+	}
+	log.Printf("sched: %d (%s) -> %d (%d)", truck, status, warehouseId, n)
+	if status == db.IDLE {
 		err = truck.SendToWarehouse(tx, warehouseId)
 		if err != nil {
 			return
@@ -128,8 +131,6 @@ func (s *Server) schedPickup(tx *sql.Tx, truck db.Truck, status db.TruckStatus, 
 				},
 			},
 		})
-	} else {
-		log.Print(n, " more package(s) for truck ", truck, " (warehouse ", warehouseId, ")")
 	}
 	return
 }

@@ -2,8 +2,10 @@ package server
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"gitlab.oit.duke.edu/rz78/ups/db"
@@ -39,7 +41,6 @@ func (s *Server) onTruckFinish(truck db.Truck, pos db.Coord) (err error) {
 		warehouseId int32
 	)
 	err = db.WithTx(s.db, func(tx *sql.Tx) (err error) {
-		// there isn't a concurrent-access issue; FOR UPDATE may not be necessary
 		const sql = `SELECT status, warehouse_id FROM truck WHERE id = $1 FOR UPDATE`
 		err = tx.QueryRow(sql, truck).Scan(&status, &warehouseId)
 		if err != nil {
@@ -81,6 +82,8 @@ func (s *Server) TruckReq(warehouseId int32) error {
 	return s.schedWarehouse(warehouseId)
 }
 
+var errNoPkgLoaded = errors.New("no package is loaded")
+
 func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 	truck := db.Truck(loaded.GetTruckId())
 	packages := loaded.GetPackageIds()
@@ -100,23 +103,26 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 		default: // other error
 			return
 		}
-		if status != db.AT_WAREHOUSE {
+		if status != db.AT_WAREHOUSE || warehouseId != loaded.GetWarehouseId() {
 			// how can you load things if the truck is not at warehouse?
-			err = fmt.Errorf("truck %d is not at warehouse", truck)
+			err = fmt.Errorf("truck %d is not at warehouse %d", truck, loaded.GetWarehouseId())
 			return
 		}
-		stmt, err := tx.Prepare(`SELECT warehouse_id, destination FROM package WHERE id = $1`)
+		stmt, err := tx.Prepare(`SELECT warehouse_id, destination, load_time `+
+			`FROM package WHERE id = $1 FOR UPDATE`)
 		if err != nil {
 			return
 		}
 		defer stmt.Close()
 		dLocs := []*ups.DeliveryLocation{}
-		for _, pkg := range packages {
+		for _, pkgId := range packages {
 			var (
 				whId int32
 				dest db.Coord
+				lTime sql.NullInt64
 			)
-			err = stmt.QueryRow(pkg).Scan(&whId, &dest)
+			pkg := db.Package(pkgId)
+			err = stmt.QueryRow(pkg).Scan(&whId, &dest, &lTime)
 			if err == sql.ErrNoRows {
 				err = fmt.Errorf("package %d does not exist", pkg)
 			}
@@ -124,16 +130,21 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 				return
 			}
 			if whId != warehouseId {
-				err = fmt.Errorf("package %d is at warehouse %d, but truck %d is at warehouse %d",
-					pkg, whId, truck, warehouseId)
+				err = fmt.Errorf("package %d is not at warehouse %d",
+					pkg, warehouseId)
 				return
 			}
-			// BUG(rz78): The sanity check in onTruckLoaded is not enough.
-			// If Amazon lies about a package, e.g., it says a package is loaded,
-			// but that package actually was loaded before or is already delivered,
-			// I might be tricked to make a delivery again (and get an error from world).
+			if lTime.Valid {
+				err = fmt.Errorf("package %d was loaded at %v",
+					pkg, time.Unix(lTime.Int64, 0).UTC())
+				return
+			}
+			err = pkg.SetLoaded(tx, truck)
+			if err != nil {
+				return
+			}
 			dLocs = append(dLocs, &ups.DeliveryLocation{
-				PackageId: proto.Int64(pkg),
+				PackageId: proto.Int64(pkgId),
 				X:         &dest.X,
 				Y:         &dest.Y,
 			})
@@ -142,6 +153,9 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 		if err != nil {
 			return
 		}
+		_, err = tx.Exec(`UPDATE package SET truck_id = NULL `+
+			`WHERE warehouse_id = $1 AND loaded_time = NULL`,
+			warehouseId)
 		// tx succeeds; tell the world
 		// don't bother with other warehouses; just go deliver
 		err = s.WriteWorld(&ups.Commands{
