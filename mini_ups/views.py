@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from . import ups_comm_pb2
 from django.db import transaction
-import time
+#import time
 
 worng_login = "Your username or password is wrong"
 worng_user = "The user is not alive"
@@ -74,6 +74,9 @@ def conn() :
     return clientsocket
 
 def ups(request) :
+    if request.user.is_active:
+        print(request.user)
+        return redirect('/home/')  
     return render (request,'ups.html')
 
 @transaction.atomic
@@ -87,7 +90,7 @@ def regist(request):
             command = ups_comm_pb2.Request()
             command.new_user = username
             resp = comm_ups(command)
-            if resp.error is not "":
+            if resp.error:
                 return render(request, 'regist.html', {'uf': uf,'wrong_message': resp.error})
             
             print(resp.user_id)
@@ -167,7 +170,7 @@ def homepage(request):
     resp = comm_ups(command)
     test = (resp.packages) 
     print(test)   
-    return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv})
+    return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv})#
 
 def searchpage(request) :
     if request.method == "POST":    
@@ -181,14 +184,14 @@ def searchpage(request) :
                     return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
                 else :
                     
-                    com = command.get_package_status.append(int(each))
+                    command.get_package_status.append(int(each))
                     #command.get_package_status = int(tracking_num)
             resp = comm_ups(command)
                 
-            if resp.error is not "":
+            if resp.error:
                 return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
             test = (resp.packages)      
-            return render(request, 'search_res.html',{'test':resp.packages})
+            return render(request, 'search_res.html',{'test':resp.packages})#
     else :
         form = SearchForm()
         
@@ -196,7 +199,7 @@ def searchpage(request) :
     
 
 def search_res(request) :
-    return render(request,'search_res.html') 
+    return render(request,'search_res.html') #
 
 @login_required    
 def Redirectpage(request,package_id) :
@@ -216,7 +219,7 @@ def Redirectpage(request,package_id) :
             command.change_destination.y = y 
             resp = comm_ups(command)
             
-            if resp.error is not "":
+            if resp.error:
                 return render(request, 'redirect.html', {'form': form,'wrong_message': resp.error})
             return redirect('/home/')
     else :

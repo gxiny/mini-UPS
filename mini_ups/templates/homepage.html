@@ -1,61 +1,56 @@
 {% extends 'signbase.html' %}
 {% block content %}
-          
 
-{% if user.is_authenticated %}
+{% if username %}
 <div>
   <h3>{{  username }}  Welcome!</h3>
 </div>
-<div>
-  <p> your ups id is : {{user_id}} </p>
-  {% for testlist in test %} 
-   <p>  <b>Package</b> <a href="{% url 'Redirectpage' package_id=testlist.package_id %}">Redirect</a> </p> 
-       <p> description : 
-       {% for deslist in testlist.detail.items %}
-         {{deslist.description}} amount : {{deslist.amount}},
-        
-         {% endfor %} </p>
-   <p>  tracking_number : {{testlist.package_id }}     </p>
-   <p>  destination : x = {{testlist.detail.x}} y = {{testlist.detail.y}} </p>
-   <p> status :
-       {% for status in testlist.status %}
-    <p> &emsp;&emsp;&emsp;{{ status.status   }} &emsp;&emsp;
-     {%if status.timestamp is not 0%}
-      <script>  
-        function getLocalTime(nS) {  
-            return new Date(parseInt(nS) * 1000).Format("yyyy-MM-dd hh:mm:ss");  
-        }  
-        Date.prototype.Format = function(fmt) { 
-            var o = {  
-                "M+" : this.getMonth() + 1,   
-                "d+" : this.getDate(),  
-                "h+" : this.getHours(),   
-                "m+" : this.getMinutes(), 
-                "s+" : this.getSeconds(),   
-                "q+" : Math.floor((this.getMonth() + 3) / 3),   
-                "S" : this.getMilliseconds()  
-            };  
-            if (/(y+)/.test(fmt))  
-                fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));  
-            for (var k in o)  
-            if (new RegExp("(" + k + ")").test(fmt))  
-                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));  
-            return fmt;  
-        }
-        
-        time = getLocalTime({{status.timestamp}})
-        document.write(time)
-     </script>  
-     {%endif%}
-     </p>  
-      {% endfor %} </p>
-  {% endfor %}
-  <p><a href="{% url 'logout' %}">Log Out</a></p>
-</div>
+{% endif %}
 
-{% else %}
+{% if user_id %}
 <div>
-  <button class = "btn btn-default"><a href = "{% url 'login' %}">log in</a></button>
+  <h3> your ups id is :{{  user_id }}</h3>
 </div>
 {% endif %}
+
+
+<div>
+      {% for testlist in test %} 
+   <p>  <b>Package </b> {% if request.user %}<a href="{% url 'Redirectpage' package_id=testlist.package_id %}">Redirect</a> {% endif %}</p>
+   <table  cellpadding="5">
+     <tr>
+      <td>  tracking_number : </td>
+      <td>  {{testlist.package_id }}    </td>
+       <td></td> 
+     </tr>
+     <tr>
+      <td> description :</td> 
+       {% for deslist in testlist.detail.items %}
+         <td>{{deslist.description}} </td>
+         <td> amount : {{deslist.amount}}</td>
+         {% endfor %}
+     </tr> 
+     <tr>
+       <td> destination : </td>
+       <td> x = {{testlist.detail.x}} </td>
+       <td>  y = {{testlist.detail.y}}  </td>
+     </tr>
+     <tr>
+       <td> status : </td> 
+       <td></td>  
+       <td></td>
+     </tr>
+       {% for status in testlist.status %}
+     <tr>
+       <td></td>
+       <td > {{ status.status   }} </td>
+     {%if status.timestamp is not 0%}
+     {% load my_tag %}
+      <td > {{ status.timestamp|get_time}} </td>
+     {%endif%}
+     </tr> 
+      {% endfor %} 
+      </table>
+      {% endfor %}
+</div>
 {% endblock %}
