@@ -16,7 +16,7 @@
 
 <div>
       {% for testlist in test %} 
-   <p>  <b>Package </b> {% if request.user %}<a href="{% url 'Redirectpage' package_id=testlist.package_id %}">Redirect</a> {% endif %}</p>
+   <p>  <b>Package </b> {% if judge %}<a href="{% url 'Redirectpage' package_id=testlist.package_id %}">Redirect</a> {% endif %}</p>
    <table  cellpadding="5">
      <tr>
       <td>  tracking_number : </td>

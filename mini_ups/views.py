@@ -163,14 +163,15 @@ def wrong(request):
 def homepage(request):
     username = request.user.username
     user_id = user_id_recv.objects.get(username = username)
-    print(user_id.user_id_recv)
+    #print(user_id.user_id_recv)
     
     command = ups_comm_pb2.Request()
     command.get_packages = user_id.user_id_recv
     resp = comm_ups(command)
     test = (resp.packages) 
-    print(test)   
-    return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv})#
+    #print(test)
+    judge = True   
+    return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv,'judge':judge})
 
 def searchpage(request) :
     if request.method == "POST":    
@@ -191,15 +192,13 @@ def searchpage(request) :
             if resp.error:
                 return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
             test = (resp.packages)      
-            return render(request, 'search_res.html',{'test':resp.packages})#
+            judge = False 
+            return render(request, 'homepage.html',{'test':resp.packages,'judge':judge})#
     else :
         form = SearchForm()
         
     return render(request, 'search.html', {'form': form})   
     
-
-def search_res(request) :
-    return render(request,'search_res.html') #
 
 @login_required    
 def Redirectpage(request,package_id) :
