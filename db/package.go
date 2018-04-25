@@ -17,6 +17,7 @@ var PackageTable = sqlObject{
 	warehouse_id INTEGER NOT NULL,
 	truck_id INTEGER REFERENCES truck(id),
 	create_time BIGINT NOT NULL,
+	load_time BIGINT,
 	deliver_time BIGINT
 )`}
 
@@ -48,20 +49,25 @@ func (id *Package) Create(tx *sql.Tx, items *PackageItems, destination Coord, us
 	return tx.QueryRow(querySQL, items, destination, userId, warehouseId, now.Unix()).Scan(id)
 }
 
-// SetDelivered sets delivery time of the package to current time.
-func (id *Package) SetDelivered(tx *sql.Tx) (err error) {
-	const querySQL = `UPDATE package SET deliver_time = $1 WHERE id = $2`
-	now := time.Now()
-	result, err := tx.Exec(querySQL, now.Unix(), id)
+func checkUpdate(result sql.Result, err error) error {
 	if err != nil {
-		return
+		return err
 	}
 	n, err := result.RowsAffected()
-	if err != nil {
-		return
-	}
-	if n == 0 {
+	if err == nil && n == 0 {
 		err = sql.ErrNoRows
 	}
-	return
+	return err
+}
+
+// SetLoaded sets loaded time of the package to current time.
+func (id Package) SetLoaded(tx *sql.Tx, truck Truck) error {
+	const query = `UPDATE package SET load_time = $1, truck_id = $2 WHERE id = $3`
+	return checkUpdate(tx.Exec(query, time.Now().Unix(), truck, id))
+}
+
+// SetDelivered sets delivery time of the package to current time.
+func (id Package) SetDelivered(tx *sql.Tx) error {
+	const query = `UPDATE package SET deliver_time = $1 WHERE id = $2`
+	return checkUpdate(tx.Exec(query, time.Now().Unix(), id))
 }
