@@ -4,8 +4,6 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 
-import re
-
 from . import ups_comm_pb2
 from .forms import *
 from .models import *
@@ -103,31 +101,24 @@ def homepage(request):
     print(test)   
     return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv})
 
-def searchpage(request) :
+def searchpage(request):
     if request.method == "POST":    
         form = SearchForm(request.POST)
         if form.is_valid():
-            tracking_num = form.cleaned_data['tracking_number']
-            command = ups_comm_pb2.Request()
-            track = tracking_num.split(',')
-            for each in track :
-                if re.match(r'^[-]?\d+$', each) == None :
-                    return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
-                else :
-                    
-                    com = command.get_package_status.append(int(each))
-                    #command.get_package_status = int(tracking_num)
-            resp = rpc_ups(command)
-                
-            if resp.error is not "":
+            pkg_ids = form.cleaned_data['tracking_number']
+            req = ups_comm_pb2.Request()
+            try:
+                req.get_package_status.extend(int(pkg_id) for pkg_id in pkg_ids.split(','))
+            except ValueError:
+                return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
+            resp = rpc_ups(req)
+            if resp.error:
                 return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
-            test = (resp.packages)      
             return render(request, 'search_res.html',{'test':resp.packages})
     else :
         form = SearchForm()
-        
     return render(request, 'search.html', {'form': form})   
-    
+
 
 def search_res(request) :
     return render(request,'search_res.html') 
