@@ -33,6 +33,7 @@ func (s *Server) PackageIdReq(pkg *bridge.Package) (resp *bridge.ResponsePackage
 	if err != nil {
 		s := err.Error()
 		log.Println(s)
+		resp.PackageId = proto.Int64(0)
 		resp.Error = &s
 	}
 	return
