@@ -68,8 +68,8 @@ func TestParseTruckReq(t *testing.T) {
 	ref := &bridge.ACommands{
 		TruckReq: &bridge.RequestTruck{
 			WarehouseId: proto.Int32(123),
-			X: proto.Int32(10),
-			Y: proto.Int32(11),
+			X:           proto.Int32(10),
+			Y:           proto.Int32(11),
 		},
 	}
 	msg := ParseProto(s)

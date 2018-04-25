@@ -18,7 +18,7 @@ var (
 func getWarehouseInNeed(tx *sql.Tx) (warehouseId int32, err error) {
 	// get a warehouse which has not-loaded-yet packages
 	err = tx.QueryRow(`SELECT warehouse_id FROM package ` +
-		`WHERE truck_id IS NULL ORDER BY create_time ASC `+
+		`WHERE truck_id IS NULL ORDER BY create_time ASC ` +
 		`LIMIT 1 FOR UPDATE`).Scan(&warehouseId)
 	if err == sql.ErrNoRows {
 		err = errNoWarehouse

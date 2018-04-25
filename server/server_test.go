@@ -20,9 +20,9 @@ var (
 var dbOptions = flag.String("db", "dbname=test user=postgres password=passw0rd", "database options")
 
 const (
-	worldAddr = ":12345"
+	worldAddr    = ":12345"
 	amzWorldAddr = ":23456"
-	amzAddr   = ":2333"
+	amzAddr      = ":2333"
 )
 
 func initTestEnv() (err error) {

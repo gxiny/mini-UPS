@@ -108,7 +108,7 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 			err = fmt.Errorf("truck %d is not at warehouse %d", truck, loaded.GetWarehouseId())
 			return
 		}
-		stmt, err := tx.Prepare(`SELECT warehouse_id, destination, load_time `+
+		stmt, err := tx.Prepare(`SELECT warehouse_id, destination, load_time ` +
 			`FROM package WHERE id = $1 FOR UPDATE`)
 		if err != nil {
 			return
@@ -117,8 +117,8 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 		dLocs := []*ups.DeliveryLocation{}
 		for _, pkgId := range packages {
 			var (
-				whId int32
-				dest db.Coord
+				whId  int32
+				dest  db.Coord
 				lTime sql.NullInt64
 			)
 			pkg := db.Package(pkgId)
