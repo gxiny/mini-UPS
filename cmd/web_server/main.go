@@ -20,6 +20,8 @@ var (
 var database *sql.DB
 
 func main() {
+	flag.Parse()
+
 	var err error
 	database, err = sql.Open("postgres", *dbOptions)
 	if err != nil {
