@@ -19,24 +19,24 @@
    <p>  <b>Package </b> {% if judge %}<a href="{% url 'Redirectpage' package_id=testlist.package_id %}">Redirect</a> {% endif %}</p>
    <table  cellpadding="5">
      <tr>
-      <td>  tracking_number : </td>
+      <td>  tracking_number: </td>
       <td>  {{testlist.package_id }}    </td>
        <td></td> 
      </tr>
      <tr>
-      <td> description :</td> 
+      <td> description: </td> 
        {% for deslist in testlist.detail.items %}
          <td>{{deslist.description}} </td>
-         <td> amount : {{deslist.amount}}</td>
+         <td> amount: {{deslist.amount}}</td>
          {% endfor %}
      </tr> 
      <tr>
-       <td> destination : </td>
+       <td> destination: </td>
        <td> x = {{testlist.detail.x}} </td>
        <td>  y = {{testlist.detail.y}}  </td>
      </tr>
      <tr>
-       <td> status : </td> 
+       <td> status: </td> 
        <td></td>  
        <td></td>
      </tr>

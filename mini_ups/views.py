@@ -9,8 +9,8 @@ from .forms import *
 from .models import *
 from .rpc import rpc
 
-worng_login = "Your username or password is wrong"
-worng_user = "The user is not alive"
+wrong_login = "Your username or password is wrong"
+wrong_user = "The user is not alive"
 wrong_format = "should be number"
 
 UPS_ADDRESS = ('vcm-3878.vm.duke.edu', 8080)
@@ -73,9 +73,9 @@ def signin(request):
                 login(request, user)
                 return redirect('/home/')
             else:
-                return render(request,'wrong.html',{'uf':uf,'wrong_message':worng_user})
+                return render(request,'login.html',{'uf':uf,'wrong_message':wrong_user})
         else:
-            return render(request,'wrong.html',{'uf':uf,'wrong_message':worng_login})                    
+            return render(request,'login.html',{'uf':uf,'wrong_message':wrong_login})                    
     else:
         uf = UserForm()
     return render (request,'login.html',{'uf':uf})
@@ -84,14 +84,14 @@ def signin(request):
 def signout(request):
     logout(request)
     return render(request,'logout.html')
-    
-def wrong(request):
-    return render(request,'wrong.html',{'wrong':wrong})
 
 @login_required
 def homepage(request):
     username = request.user.username
-    user_id = user_id_recv.objects.get(username = username)
+    if user_id_recv.objects.get(username = username): 
+        user_id = user_id_recv.objects.get(username = username)
+    else: 
+        return redirect('/login/')
     #print(user_id.user_id_recv)
     
     command = ups_comm_pb2.Request()

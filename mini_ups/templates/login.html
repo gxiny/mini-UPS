@@ -2,7 +2,11 @@
 {% extends 'signbase.html' %}
 
 {% block content %}
-
+{% if wrong_message %}
+<div>
+  <h3>{{  wrong_message }} </h3>
+</div>
+{% endif %}
 <h1>login</h1>
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
@@ -10,4 +14,5 @@
   <button type="submit">Log in</button>
 </form>
 <!--<a href="{% url 'regist' %}">regist</a>-->
+
     {% endblock %}
