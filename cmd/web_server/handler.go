@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/golang/protobuf/proto"
@@ -18,7 +19,7 @@ func handleRequest(database *sql.DB, req *web.Request) (resp *web.Response) {
 	case req.GetPackages != nil:
 		resp, err = handleGetPackages(database, *req.GetPackages)
 	case req.GetPackageStatus != nil:
-		resp, err = handleGetPackageStatus(database, *req.GetPackageStatus)
+		resp, err = handleGetPackageStatus(database, req.GetPackageStatus)
 	case req.ChangeDestination != nil:
 		resp, err = handleChangeDestination(database, req.ChangeDestination)
 	}
@@ -44,62 +45,77 @@ func handleNewUser(database *sql.DB, username string) (resp *web.Response, err e
 	return
 }
 
-const pkgCommonSQL = `
-SELECT package.id, package.items, package.destination,
-	package.create_time, package.deliver_time,
-	truck.status
-FROM package LEFT JOIN truck
-ON package.truck_id = truck.id WHERE `
+const pkgCommonSQL = `SELECT id, items, destination, create_time, load_time, deliver_time, truck_status FROM package_view `
 
 func handleGetPackages(database *sql.DB, userId int64) (resp *web.Response, err error) {
-	return pkgQuery(database, pkgCommonSQL+`package.user_id = $1`, userId)
-}
-
-var errInvalidPkgId = errors.New("invalid package id")
-
-func handleGetPackageStatus(database *sql.DB, pkgId int64) (resp *web.Response, err error) {
-	resp, err = pkgQuery(database, pkgCommonSQL+`package.id = $1`, pkgId)
-	if err == nil && len(resp.GetPackages()) == 0 {
-		err = errInvalidPkgId
+	resp = new(web.Response)
+	rows, err := database.Query(pkgCommonSQL+`WHERE user_id = $1 ORDER BY create_time DESC`, userId)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = appendPackage(resp, rows)
+		if err != nil {
+			return
+		}
 	}
 	return
 }
 
-func pkgQuery(database *sql.DB, query string, args ...interface{}) (resp *web.Response, err error) {
+func handleGetPackageStatus(database *sql.DB, pkgIds []int64) (resp *web.Response, err error) {
 	resp = new(web.Response)
-	err = db.WithTx(database, func(tx *sql.Tx) (err error) {
-		tx.Exec(`SET TRANSACTION READ ONLY`)
-		rows, err := tx.Query(query, args...)
+	var invalidIds []int64
+	stmt, err := database.Prepare(pkgCommonSQL + `WHERE id = $1 ORDER BY create_time DESC`)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	for _, pkgId := range pkgIds {
+		err = appendPackage(resp, stmt.QueryRow(pkgId))
+		if err == sql.ErrNoRows {
+			invalidIds = append(invalidIds, pkgId)
+			err = nil
+		}
 		if err != nil {
+			log.Printf("%#v %#v", err, sql.ErrNoRows)
 			return
 		}
-		defer rows.Close()
-		for rows.Next() {
-			var (
-				pkgId  int64
-				items  db.PackageItems
-				dest   db.Coord // TODO: include dest in the response
-				ctime  int64
-				dtime  sql.NullInt64
-				status *db.TruckStatus
-			)
-			err = rows.Scan(&pkgId, &items, &dest, &ctime, &dtime, &status)
-			if err != nil {
-				return
-			}
-			pkg := &web.Package{
-				PackageId: &pkgId,
-				Detail: &web.PkgDetail{
-					Items: convertItems(&items),
-					X:     &dest.X,
-					Y:     &dest.Y,
-				},
-				Status: convertStatus(ctime, dtime, status),
-			}
-			resp.Packages = append(resp.Packages, pkg)
-		}
+	}
+	if err == nil && len(invalidIds) > 0 {
+		err = fmt.Errorf("invalid package id: %v", invalidIds)
+	}
+	return
+}
+
+type scanner interface {
+	Scan(...interface{}) error
+}
+
+func appendPackage(resp *web.Response, sc scanner) (err error) {
+	var (
+		pkgId  int64
+		items  db.PackageItems
+		dest   db.Coord
+		ctime  int64
+		ltime  sql.NullInt64
+		dtime  sql.NullInt64
+		status *db.TruckStatus
+	)
+	err = sc.Scan(&pkgId, &items, &dest, &ctime, &ltime, &dtime, &status)
+	if err != nil {
 		return
-	})
+	}
+	pkg := &web.Package{
+		PackageId: &pkgId,
+		Detail: &web.PkgDetail{
+			Items: convertItems(&items),
+			X:     &dest.X,
+			Y:     &dest.Y,
+		},
+		Status: convertStatus(ctime, ltime, dtime, status),
+	}
+	resp.Packages = append(resp.Packages, pkg)
 	return
 }
 
@@ -113,63 +129,58 @@ func convertItems(items *db.PackageItems) (r []*web.Item) {
 	return
 }
 
-func convertStatus(ctime int64, dtime sql.NullInt64, status *db.TruckStatus) (r []*web.Status) {
+func convertStatus(ctime int64, ltime, dtime sql.NullInt64, status *db.TruckStatus) (r []*web.Status) {
 	r = append(r, &web.Status{
 		Status:    proto.String("created"),
 		Timestamp: &ctime,
 	})
-	if !dtime.Valid {
-		if status != nil {
-			var s string
-			switch *status {
-			case db.TO_WAREHOUSE:
-				s = "truck en route"
-			case db.AT_WAREHOUSE:
-				s = "truck waiting for package"
-			case db.DELIVERING:
-				s = "delivering"
-			}
-			r = append(r, &web.Status{Status: &s})
-		}
-	} else {
+	if ltime.Valid {
+		r = append(r, &web.Status{
+			Status:    proto.String("loaded to truck"),
+			Timestamp: &ltime.Int64,
+		})
+	}
+	if dtime.Valid {
 		r = append(r, &web.Status{
 			Status:    proto.String("delivered"),
 			Timestamp: &dtime.Int64,
 		})
+	} else if status != nil {
+		var s string
+		switch *status {
+		case db.TO_WAREHOUSE:
+			s = "truck en route"
+		case db.AT_WAREHOUSE:
+			s = "truck waiting for package"
+		case db.DELIVERING:
+			s = "delivering"
+		}
+		r = append(r, &web.Status{Status: &s})
 	}
 	return
 }
 
 var (
-	errPkgDelivered  = errors.New("package is delivered")
-	errPkgDelivering = errors.New("package is out for delivery")
-	errPermDenied    = errors.New("permission denied")
+	errPkgLoaded  = errors.New("package is delivered / being delivered")
+	errPermDenied = errors.New("permission denied")
 )
 
 func handleChangeDestination(database *sql.DB, dest *web.PkgDest) (resp *web.Response, err error) {
 	resp = new(web.Response)
 	err = db.WithTx(database, func(tx *sql.Tx) (err error) {
 		var (
-			dtime  sql.NullInt64
+			ltime  sql.NullInt64
 			userId sql.NullInt64
-			truck  *db.Truck
 		)
-		err = tx.QueryRow(`SELECT deliver_time, user_id, truck_id FROM package WHERE id = $1 FOR UPDATE`,
-			dest.PackageId).Scan(&dtime, &userId, &truck)
+		err = tx.QueryRow(`SELECT load_time, user_id FROM package WHERE id = $1 FOR UPDATE`,
+			dest.PackageId).Scan(&ltime, &userId)
 		if err != nil {
 			return
 		}
 		if !userId.Valid || dest.GetUserId() != userId.Int64 {
 			err = errPermDenied
-		} else if dtime.Valid { // delivered
-			err = errPkgDelivered
-		} else if truck != nil {
-			var status db.TruckStatus
-			err = tx.QueryRow(`SELECT status FROM truck WHERE id = $1 FOR SHARE`,
-				*truck).Scan(&status)
-			if err == nil && status == db.DELIVERING { // delivering
-				err = errPkgDelivering
-			}
+		} else if ltime.Valid {
+			err = errPkgLoaded
 		}
 		if err != nil {
 			return

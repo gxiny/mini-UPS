@@ -10,7 +10,7 @@ message PkgDest {
 message Request {
         optional string new_user = 1; // string contains username
 	optional int64 get_packages = 2; // int64 contains user id
-	optional int64 get_package_status = 3; // int64 contains package id
+	repeated int64 get_package_status = 3; // int64 contains package id
 	optional PkgDest change_destination = 4;
 }
 

@@ -102,7 +102,7 @@ func TestPackages(t *testing.T) {
 
 	// requesting a single package
 	req := &web.Request{
-		GetPackageStatus: proto.Int64(int64(pkg2)),
+		GetPackageStatus: []int64{int64(pkg2)},
 	}
 	resp := handleRequest(testdb, req)
 	if resp.Error != nil {
@@ -135,25 +135,15 @@ func TestPackages(t *testing.T) {
 	} else if (dest != db.Coord{X: 99, Y: 100}) {
 		t.Errorf("%v != (99,100)", dest)
 	}
+
 	err = db.WithTx(testdb, func(tx *sql.Tx) error {
-		return truck.UpdateStatus(tx, db.DELIVERING)
+		return pkg1.SetLoaded(tx, truck)
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	resp = handleRequest(testdb, req) // cannot change because package is being delivered
-	if e := resp.Error; e == nil || *e != errPkgDelivering.Error() {
-		t.Errorf("resp.Error = %v", resp.GetError())
-	}
-	err = db.WithTx(testdb, func(tx *sql.Tx) error {
-		truck.UpdateStatus(tx, db.IDLE)
-		return pkg1.SetDelivered(tx)
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	resp = handleRequest(testdb, req) // cannot change because package is delivered
-	if e := resp.Error; e == nil || *e != errPkgDelivered.Error() {
+	resp = handleRequest(testdb, req) // cannot change because package is loaded
+	if e := resp.Error; e == nil || *e != errPkgLoaded.Error() {
 		t.Errorf("resp.Error = %v", resp.GetError())
 	}
 
