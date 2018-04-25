@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['vcm-207.vm.duke.edu']
 
 INSTALLED_APPS = [
     'mini_ups',
+    #'guardian',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,7 +52,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'mysite.urls'
-
+LOGIN_URL = 'login'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -70,6 +71,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
+#AUTHENTICATION_BACKENDS = (
+#    'django.contrib.auth.backends.ModelBackend', # default
+#    'guardian.backends.ObjectPermissionBackend',
+#)
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases

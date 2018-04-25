@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='ups_comm.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x0eups_comm.proto\"3\n\x07PkgDest\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"s\n\x07Request\x12\x10\n\x08new_user\x18\x01 \x01(\t\x12\x14\n\x0cget_packages\x18\x02 \x01(\x03\x12\x1a\n\x12get_package_status\x18\x03 \x01(\x03\x12$\n\x12\x63hange_destination\x18\x04 \x01(\x0b\x32\x08.PkgDest\"F\n\x08Response\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x1a\n\x08packages\x18\x02 \x03(\x0b\x32\x08.Package\x12\r\n\x05\x65rror\x18\x03 \x01(\t\"+\n\x04Item\x12\x13\n\x0b\x64\x65scription\x18\x01 \x02(\t\x12\x0e\n\x06\x61mount\x18\x02 \x02(\x05\"7\n\tPkgDetail\x12\x14\n\x05items\x18\x01 \x03(\x0b\x32\x05.Item\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"R\n\x07Package\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\x1a\n\x06\x64\x65tail\x18\x02 \x02(\x0b\x32\n.PkgDetail\x12\x17\n\x06status\x18\x03 \x03(\x0b\x32\x07.Status\"+\n\x06Status\x12\x0e\n\x06status\x18\x01 \x02(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x03')
+  serialized_pb=_b('\n\x0eups_comm.proto\"D\n\x07PkgDest\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\x12\x0f\n\x07user_id\x18\x04 \x02(\x03\"s\n\x07Request\x12\x10\n\x08new_user\x18\x01 \x01(\t\x12\x14\n\x0cget_packages\x18\x02 \x01(\x03\x12\x1a\n\x12get_package_status\x18\x03 \x03(\x03\x12$\n\x12\x63hange_destination\x18\x04 \x01(\x0b\x32\x08.PkgDest\"F\n\x08Response\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x1a\n\x08packages\x18\x02 \x03(\x0b\x32\x08.Package\x12\r\n\x05\x65rror\x18\x03 \x01(\t\"+\n\x04Item\x12\x13\n\x0b\x64\x65scription\x18\x01 \x02(\t\x12\x0e\n\x06\x61mount\x18\x02 \x02(\x05\"7\n\tPkgDetail\x12\x14\n\x05items\x18\x01 \x03(\x0b\x32\x05.Item\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"R\n\x07Package\x12\x12\n\npackage_id\x18\x01 \x02(\x03\x12\x1a\n\x06\x64\x65tail\x18\x02 \x02(\x0b\x32\n.PkgDetail\x12\x17\n\x06status\x18\x03 \x03(\x0b\x32\x07.Status\"+\n\x06Status\x12\x0e\n\x06status\x18\x01 \x02(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x03')
 )
 
 
@@ -53,6 +53,13 @@ _PKGDEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='user_id', full_name='PkgDest.user_id', index=3,
+      number=4, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -66,7 +73,7 @@ _PKGDEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=18,
-  serialized_end=69,
+  serialized_end=86,
 )
 
 
@@ -93,8 +100,8 @@ _REQUEST = _descriptor.Descriptor(
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='get_package_status', full_name='Request.get_package_status', index=2,
-      number=3, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
+      number=3, type=3, cpp_type=2, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -117,8 +124,8 @@ _REQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=71,
-  serialized_end=186,
+  serialized_start=88,
+  serialized_end=203,
 )
 
 
@@ -162,8 +169,8 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=188,
-  serialized_end=258,
+  serialized_start=205,
+  serialized_end=275,
 )
 
 
@@ -200,8 +207,8 @@ _ITEM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=260,
-  serialized_end=303,
+  serialized_start=277,
+  serialized_end=320,
 )
 
 
@@ -245,8 +252,8 @@ _PKGDETAIL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=305,
-  serialized_end=360,
+  serialized_start=322,
+  serialized_end=377,
 )
 
 
@@ -290,8 +297,8 @@ _PACKAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=362,
-  serialized_end=444,
+  serialized_start=379,
+  serialized_end=461,
 )
 
 
@@ -328,8 +335,8 @@ _STATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=446,
-  serialized_end=489,
+  serialized_start=463,
+  serialized_end=506,
 )
 
 _REQUEST.fields_by_name['change_destination'].message_type = _PKGDEST

@@ -19,10 +19,9 @@ class SignUpForm(UserCreationForm): #UserCreationForm
         super(SignUpForm, self).__init__(*args, **kwargs)
 
 class SearchForm(forms.Form):
-    tracking_number = forms.CharField()
-
+    tracking_number = forms.CharField(label="tracking_number(seperate name by ',')",widget = forms.Textarea)
 
 class RedirectForm(forms.Form):
-    tracking_number = forms.CharField()
+    #tracking_number = forms.CharField()
     x = forms.IntegerField()
     y = forms.IntegerField()

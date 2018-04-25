@@ -1,6 +1,9 @@
 {% extends 'signbase.html' %}
 {% block content %}
-<h1>Regist</h1>
+<div>
+  <h3>{{  wrong_message }} </h3>
+</div>
+<h1>Register</h1>
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {{uf.as_p}}

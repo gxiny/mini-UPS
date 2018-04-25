@@ -13,8 +13,10 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from . import ups_comm_pb2
+from django.db import transaction
+import time
 
-worng_login = "Your username or email or password is wrong"
+worng_login = "Your username or password is wrong"
 worng_user = "The user is not alive"
 wrong_format = "should be number"
 
@@ -26,7 +28,7 @@ except ImportError:
 # Create your views here.
 class UserForm(forms.Form):
     username = forms.CharField(label = 'username',max_length=50)
-    email = forms.CharField(label = 'email',max_length=50)
+    #email = forms.CharField(label = 'email',max_length=50)
     password = forms.CharField(label = 'password',max_length=50,widget=forms.PasswordInput())
 
 def encode(number):
@@ -71,19 +73,23 @@ def conn() :
     clientsocket.connect((host,port))
     return clientsocket
 
-def index(request) :
+def ups(request) :
     return render (request,'ups.html')
 
+@transaction.atomic
 def regist(request):
     if request.method == 'POST':
         uf = SignUpForm(request.POST)
         if uf.is_valid():
-            #get data
             uf.save()
             username = uf.cleaned_data.get('username')
+            email    = uf.cleaned_data.get('email')
             command = ups_comm_pb2.Request()
             command.new_user = username
             resp = comm_ups(command)
+            if resp.error is not "":
+                return render(request, 'regist.html', {'uf': uf,'wrong_message': resp.error})
+            
             print(resp.user_id)
             user_id = user_id_recv (
                 username = username,
@@ -118,17 +124,15 @@ def comm_ups(command) :
 def signin(request):
     if request.user is not None:
         if request.user.is_active:
-            login(request, request.user)
+            login(request, request.user,backend='django.contrib.auth.backends.ModelBackend')
             return redirect('/home/')
+            
     if request.method == 'POST':
         uf = UserForm(request.POST)
-       # uf = UserCreationForm(request.POST)
         if uf.is_valid():
             #get username and password
             username = uf.cleaned_data['username']
             password = uf.cleaned_data['password']
-            #compare with database
-            #user = User.objects.filter(username__exact = username,password__exact = password)
         username = request.POST['username']
         raw_password = request.POST['password']
         user = authenticate(username=username, password=raw_password)
@@ -161,26 +165,30 @@ def homepage(request):
     command = ups_comm_pb2.Request()
     command.get_packages = user_id.user_id_recv
     resp = comm_ups(command)
-    test = (resp.packages)    
-    return render (request,'homepage.html',{'username':username,'test':resp.packages})
+    test = (resp.packages) 
+    print(test)   
+    return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv})
 
 def searchpage(request) :
     if request.method == "POST":    
         form = SearchForm(request.POST)
         if form.is_valid():
             tracking_num = form.cleaned_data['tracking_number']
-            if re.match(r'^[-]?\d+$', tracking_num) == None :
-                return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
-            else :
+            command = ups_comm_pb2.Request()
+            track = tracking_num.split(',')
+            for each in track :
+                if re.match(r'^[-]?\d+$', each) == None :
+                    return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
+                else :
+                    
+                    com = command.get_package_status.append(int(each))
+                    #command.get_package_status = int(tracking_num)
+            resp = comm_ups(command)
                 
-                command = ups_comm_pb2.Request()
-                command.get_package_status = int(tracking_num)
-                resp = comm_ups(command)
-                
-                if resp.error is not "":
-                    return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
-                test = (resp.packages)      
-                return render(request, 'search_res.html',{'test':resp.packages})
+            if resp.error is not "":
+                return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
+            test = (resp.packages)      
+            return render(request, 'search_res.html',{'test':resp.packages})
     else :
         form = SearchForm()
         
@@ -189,18 +197,21 @@ def searchpage(request) :
 
 def search_res(request) :
     return render(request,'search_res.html') 
-    
-def Redirectpage(request) :
+
+@login_required    
+def Redirectpage(request,package_id) :
     if request.method == "POST":    
         form = RedirectForm(request.POST)
         if form.is_valid():
             
-            package_id = form.cleaned_data['x']
+            #package_id = form.cleaned_data['x']
             x = form.cleaned_data['x']
             y = form.cleaned_data['y']
-           
+            username = request.user.username
+            user_id = user_id_recv.objects.get(username = username) 
             command = ups_comm_pb2.Request() 
-            command.change_destination.package_id = package_id
+            command.change_destination.user_id = user_id.user_id_recv
+            command.change_destination.package_id = int(package_id)
             command.change_destination.x = x
             command.change_destination.y = y 
             resp = comm_ups(command)
