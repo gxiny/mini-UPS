@@ -154,8 +154,11 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 			return
 		}
 		_, err = tx.Exec(`UPDATE package SET truck_id = NULL `+
-			`WHERE warehouse_id = $1 AND loaded_time = NULL`,
+			`WHERE warehouse_id = $1 AND load_time IS NULL`,
 			warehouseId)
+		if err != nil {
+			return
+		}
 		// tx succeeds; tell the world
 		// don't bother with other warehouses; just go deliver
 		err = s.WriteWorld(&ups.Commands{
