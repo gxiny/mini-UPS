@@ -21,6 +21,18 @@ var PackageTable = sqlObject{
 	deliver_time BIGINT
 )`}
 
+var PackageView = sqlObject{
+	`VIEW`, `package_view`, `AS
+	SELECT package.id, package.items, package.destination,
+		package.user_id,
+	        package.create_time,
+		package.load_time,
+		package.deliver_time,
+		truck.status AS truck_status
+	FROM package LEFT JOIN truck
+	ON package.truck_id = truck.id`,
+}
+
 type Package int64
 
 //go:generate protoc --go_out=. package_items.proto

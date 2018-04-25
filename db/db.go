@@ -28,6 +28,7 @@ var allSQL = [...]sqlObject{
 	truckStatusType,
 	TruckTable,
 	PackageTable,
+	PackageView,
 }
 
 // InitSchema creates all objects in the database.
