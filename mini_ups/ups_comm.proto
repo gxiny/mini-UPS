@@ -1,3 +1,4 @@
+syntax = "proto2";
 message PkgDest {
         required int64 package_id = 1;
         required int32 x = 2;

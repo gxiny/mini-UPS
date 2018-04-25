@@ -7,7 +7,7 @@
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {{uf.as_p}}
-  <input type="submit" value="ok"></input>
+  <input type="submit" value="Register"></input>
 </form>
-<a href="{% url 'login' %}">login</a>
+<!--<a href="{% url 'login' %}">login</a>-->
     {% endblock %}

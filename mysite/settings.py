@@ -32,7 +32,6 @@ ALLOWED_HOSTS = ['vcm-207.vm.duke.edu']
 
 INSTALLED_APPS = [
     'mini_ups',
-    #'guardian',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
