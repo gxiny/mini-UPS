@@ -1,20 +1,14 @@
-from django.shortcuts import render,render_to_response,get_object_or_404
-from django.utils import timezone
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from django import forms
-from django.http import HttpResponse,HttpResponseRedirect
-from django.template import RequestContext
-from .forms import *
-from  django.contrib.auth.models import User
-from .models import *
-import re
-from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
-from . import ups_comm_pb2
 from django.db import transaction
-import time
+
+import re
+
+from . import ups_comm_pb2
+from .forms import *
+from .models import *
 from .rpc import rpc
 
 worng_login = "Your username or password is wrong"
