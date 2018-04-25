@@ -7,7 +7,7 @@ from django.template import RequestContext
 from .forms import *
 from  django.contrib.auth.models import User
 from .models import *
-import socket,re
+import re
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
@@ -15,63 +15,22 @@ from django.core.exceptions import ObjectDoesNotExist
 from . import ups_comm_pb2
 from django.db import transaction
 import time
+from .rpc import rpc
 
 worng_login = "Your username or password is wrong"
 worng_user = "The user is not alive"
 wrong_format = "should be number"
 
-try:
-    from io import BytesIO
-except ImportError:
-    from StringIO import StringIO as BytesIO
+UPS_ADDRESS = ('vcm-3878.vm.duke.edu', 8080)
+
+def rpc_ups(request):
+    return rpc(UPS_ADDRESS, request, ups_comm_pb2.Response())
 
 # Create your views here.
 class UserForm(forms.Form):
     username = forms.CharField(label = 'username',max_length=50)
     #email = forms.CharField(label = 'email',max_length=50)
     password = forms.CharField(label = 'password',max_length=50,widget=forms.PasswordInput())
-
-def encode(number):
-    buf = []
-    while True:
-        towrite = number & 0x7f
-        number >>= 7
-        if number:
-            buf.append(towrite | 0x80)
-        else:
-            buf.append(towrite)
-            break
-    return bytes(buf)
-    
-def decode_stream(stream):
-    """Read a varint from `stream`"""
-    shift = 0
-    result = 0
-    while True:
-        i = _read_one(stream)
-        result |= (i & 0x7f) << shift
-        shift += 7
-        if not (i & 0x80):
-            break
-
-    return result
-    
-def _read_one(stream):
-    """Read a byte from the file (as an integer)
-    raises EOFError if the stream ends while reading bytes.
-    """
-    c = stream.recv(1)
-    if c == b'':
-        raise EOFError("Unexpected EOF while reading bytes")
-    return ord(c)
- 
-def conn() :
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = "vcm-3878.vm.duke.edu"
-    print(host)
-    port = 8080
-    clientsocket.connect((host,port))
-    return clientsocket
 
 def ups(request) :
     return render (request,'ups.html')
@@ -86,7 +45,7 @@ def regist(request):
             email    = uf.cleaned_data.get('email')
             command = ups_comm_pb2.Request()
             command.new_user = username
-            resp = comm_ups(command)
+            resp = rpc_ups(command)
             if resp.error is not "":
                 return render(request, 'regist.html', {'uf': uf,'wrong_message': resp.error})
             
@@ -101,25 +60,6 @@ def regist(request):
     else:
         uf = SignUpForm()
     return render (request,'regist.html',{'uf':uf})
-
-def comm_ups(command) :
-    clientsocket = conn() 
-    send_mess = command.SerializeToString()
-    leng = encode(len(send_mess))
-    print(leng)
-    clientsocket.send(leng)
-    clientsocket.send(send_mess)
-    res = decode_stream(clientsocket)
-    print(res)
-    msg = clientsocket.recv(res)
-    resp = ups_comm_pb2.Response()
-    resp.ParseFromString(msg)
-    
-    #return resp.buser_id
-    clientsocket.close()
-    return resp
-    
-
 
 def signin(request):
     if request.user is not None:
@@ -164,7 +104,7 @@ def homepage(request):
     
     command = ups_comm_pb2.Request()
     command.get_packages = user_id.user_id_recv
-    resp = comm_ups(command)
+    resp = rpc_ups(command)
     test = (resp.packages) 
     print(test)   
     return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv})
@@ -183,7 +123,7 @@ def searchpage(request) :
                     
                     com = command.get_package_status.append(int(each))
                     #command.get_package_status = int(tracking_num)
-            resp = comm_ups(command)
+            resp = rpc_ups(command)
                 
             if resp.error is not "":
                 return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
@@ -214,7 +154,7 @@ def Redirectpage(request,package_id) :
             command.change_destination.package_id = int(package_id)
             command.change_destination.x = x
             command.change_destination.y = y 
-            resp = comm_ups(command)
+            resp = rpc_ups(command)
             
             if resp.error is not "":
                 return render(request, 'redirect.html', {'form': form,'wrong_message': resp.error})
@@ -223,3 +163,4 @@ def Redirectpage(request,package_id) :
         form = RedirectForm()
     return render(request, 'redirect.html', {'form': form})
                   
+# vim: ts=4:sw=4:et
