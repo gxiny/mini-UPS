@@ -30,28 +30,25 @@ def ups(request) :
 @transaction.atomic
 def regist(request):
     if request.method == 'POST':
-        uf = SignUpForm(request.POST)
-        if uf.is_valid():
-            uf.save()
-            username = uf.cleaned_data.get('username')
-            email    = uf.cleaned_data.get('email')
-            command = ups_comm_pb2.Request()
-            command.new_user = username
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            req = ups_comm_pb2.Request()
+            req.new_user = form.cleaned_data['username']
             resp = rpc_ups(command)
-            if resp.error is not "":
-                return render(request, 'regist.html', {'uf': uf,'wrong_message': resp.error})
-            
-            print(resp.user_id)
-            user_id = user_id_recv (
+
+            if resp.error:
+                return render(request, 'regist.html', {'uf': form, 'wrong_message': resp.error})
+
+            user_id = user_id_recv(
                 username = username,
                 user_id_recv = resp.user_id,
             )
             user_id.save()
-            #return render(request,'homepage.html',{'uf':uf})
             return redirect('/login/')        
     else:
-        uf = SignUpForm()
-    return render (request,'regist.html',{'uf':uf})
+        form = SignUpForm()
+    return render(request,'regist.html', {'uf':form})
 
 def signin(request):
     if request.user is not None:
