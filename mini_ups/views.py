@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django import forms
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 
 from . import ups_comm_pb2
@@ -27,18 +28,18 @@ def ups(request) :
     return render (request,'ups.html')
 
 @transaction.atomic
-def regist(request):
+def register(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
             req = ups_comm_pb2.Request()
             req.new_user = form.cleaned_data['username']
             resp = rpc_ups(req)
 
             if resp.error:
-                return render(request, 'regist.html', {'uf': form, 'wrong_message': resp.error})
+                return render(request, 'register.html', {'uf': form, 'wrong_message': resp.error})
 
+            form.save()
             user_id = user_id_recv(
                 username = form.cleaned_data['username'],
                 user_id_recv = resp.user_id,
@@ -46,8 +47,8 @@ def regist(request):
             user_id.save()
             return redirect('/login/')        
     else:
-        form = SignUpForm()
-    return render(request,'regist.html', {'uf':form})
+        form = UserCreationForm()
+    return render(request,'register.html', {'uf':form})
 
 
 def signout(request):
