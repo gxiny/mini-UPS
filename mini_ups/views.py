@@ -37,39 +37,26 @@ class RegisterView(FormView):
 
     @transaction.atomic
     def form_valid(self, form):
-        username = form.cleaned_data['username']
         req = ups_comm_pb2.Request()
-        req.new_user = username
+        req.new_user = form.cleaned_data['username']
         resp = rpc_ups(req)
 
         if resp.error:
             form.add_error(None, resp.error)
             return self.form_invalid(form)
-        form.save()
-        user_id = user_id_recv(
-            username = username,
-            user_id_recv = resp.user_id,
-        )
-        user_id.save()
+        user = form.save()
+        UpsId.objects.create(user=user, ups_id=resp.user_id)
         return super().form_valid(form)
 
 
 @login_required
 def homepage(request):
-    username = request.user.username
-    if user_id_recv.objects.get(username = username): 
-        user_id = user_id_recv.objects.get(username = username)
-    else: 
-        return redirect('/login/')
-    #print(user_id.user_id_recv)
-    
-    command = ups_comm_pb2.Request()
-    command.get_packages = user_id.user_id_recv
-    resp = rpc_ups(command)
-    test = (resp.packages) 
-    #print(test)
+    ups_id = UpsId.objects.get(user=request.user)
+    req = ups_comm_pb2.Request()
+    req.get_packages = ups_id.value
+    resp = rpc_ups(req)
     judge = True   
-    return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv,'judge':judge})
+    return render (request,'homepage.html',{'username': request.user.username,'test':resp.packages,'user_id':ups_id.value,'judge':judge})
 
 def searchpage(request):
     if request.method == "POST":    
@@ -95,19 +82,17 @@ def Redirectpage(request,package_id) :
     if request.method == "POST":    
         form = RedirectForm(request.POST)
         if form.is_valid():
-            
-            #package_id = form.cleaned_data['x']
             x = form.cleaned_data['x']
             y = form.cleaned_data['y']
-            username = request.user.username
-            user_id = user_id_recv.objects.get(username = username) 
-            command = ups_comm_pb2.Request() 
-            command.change_destination.user_id = user_id.user_id_recv
-            command.change_destination.package_id = int(package_id)
-            command.change_destination.x = x
-            command.change_destination.y = y 
-            resp = rpc_ups(command)
-            
+            ups_id = UpsId.objects.get(user=request.user)
+            req = ups_comm_pb2.Request()
+            command = req.change_destination
+            command.user_id = ups_id.value
+            command.package_id = int(package_id)
+            command.x = x
+            command.y = y
+            resp = rpc_ups(req)
+
             if resp.error:
                 return render(request, 'redirect.html', {'form': form,'wrong_message': resp.error})
             return redirect('/home/')
