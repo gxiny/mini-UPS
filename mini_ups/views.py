@@ -1,10 +1,8 @@
-from django import forms
-from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
@@ -12,10 +10,6 @@ from . import ups_comm_pb2
 from .forms import *
 from .models import *
 from .rpc import rpc
-
-wrong_login = "Your username or password is wrong"
-wrong_user = "The user is not alive"
-wrong_format = "should be number"
 
 UPS_ADDRESS = ('vcm-3878.vm.duke.edu', 8080)
 
@@ -25,7 +19,7 @@ def rpc_ups(request):
 # Create your views here.
 
 def index(request):
-    return render(request,'index.html')
+    return render(request, 'index.html')
 
 
 class RegisterView(FormView):
