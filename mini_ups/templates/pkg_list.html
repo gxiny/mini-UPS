@@ -8,7 +8,7 @@
         <tr>
             <td><a href="{% url "package_detail" package.package_id %}">{{package.package_id}}</a></td>
             <td>{{package.create_time|get_time}}</td>
-            <td>{{package.status|title}}</td>
+            <td>{{package.status|capfirst}}</td>
         </tr>
         {% endfor %}
     </tbody>

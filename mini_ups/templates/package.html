@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Package {{package_id}}</h1>
+
+<p>Package {{package_id}} will be sent to ({{package.x}}, {{package.y}}).
+{% if package.user_id == user.upsid.value %}
+<a href="{% url "Redirectpage" package_id %}">Change the destination...</a>
+{% endif %}
+</p>
+<h2>Shipping History</h2>
+{% include "shipping_history.html" %}
+<h2>Package Detail</h2>
 {% include "pkg_detail.html" %}
 {% endblock %}
 

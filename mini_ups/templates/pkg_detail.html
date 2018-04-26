@@ -1,31 +1,3 @@
-{% load my_tag %}
-
-<p>Package {{package_id}} will be sent to ({{package.x}}, {{package.y}}).
-{% if package.user_id == user.upsid.value %}
-<a href="{% url "Redirectpage" package_id %}">Change the destination...</a>
-{% endif %}
-</p>
-
-<h2>Shipping History</h2>
-
-<table class="table table-hover">
-    <thead>
-        <tr><th>Status</th><th>Update Time</th></tr>
-    </thead>
-    <tbody>
-        {% for status in package.status reversed %}
-        <tr>
-            <td> {{ status.status }} </td>
-            {%if status.timestamp is not 0 %}
-            <td> {{ status.timestamp|get_time}} </td>
-            {%endif%}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<h2>Package Detail</h2>
-
 <table class="table table-hover">
     <thead>
         <tr><th>#</th><th>Item</th><th>Count</th></tr>
