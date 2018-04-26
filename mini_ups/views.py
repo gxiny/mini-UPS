@@ -37,7 +37,7 @@ class RegisterView(FormView):
             form.add_error(None, resp.error)
             return self.form_invalid(form)
         user = form.save()
-        UpsId.objects.create(user=user, ups_id=resp.user_id)
+        UpsId.objects.create(user=user, value=resp.user_id)
         return super().form_valid(form)
 
 
