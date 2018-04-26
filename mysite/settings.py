@@ -54,6 +54,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'mysite.urls'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'homepage'
+LOGOUT_REDIRECT_URL = 'ups'
 
 TEMPLATES = [
     {

@@ -54,10 +54,6 @@ class RegisterView(FormView):
         return super().form_valid(form)
 
 
-def signout(request):
-    logout(request)
-    return render(request,'logout.html')
-
 @login_required
 def homepage(request):
     username = request.user.username
