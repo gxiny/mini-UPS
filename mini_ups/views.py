@@ -40,7 +40,7 @@ def regist(request):
                 return render(request, 'regist.html', {'uf': form, 'wrong_message': resp.error})
 
             user_id = user_id_recv(
-                username = username,
+                username = form.cleaned_data['username'],
                 user_id_recv = resp.user_id,
             )
             user_id.save()
