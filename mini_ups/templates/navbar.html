@@ -13,7 +13,7 @@
         <div class="navbar-nav">
             <form action="{% url 'track' %}" method="GET" class="form-inline">
                 <input class="form-control mr-sm-2 bg-dark text-light" name="q" placeholder="Enter tracking number">
-                <button type="submit" class="btn btn-outline-warning">Track Package</button>
+                <button type="submit" class="btn btn-outline-warning my-2 my-sm-0">Track Package</button>
             </form>
             {% if user.is_authenticated %}
             <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
