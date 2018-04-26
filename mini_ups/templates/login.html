@@ -1,18 +1,23 @@
-
 {% extends 'signbase.html' %}
+{% load bootstrap4 %}
 
 {% block content %}
 {% if wrong_message %}
 <div>
-  <h3>{{  wrong_message }} </h3>
+    <h3>{{  wrong_message }} </h3>
 </div>
 {% endif %}
-<h1>login</h1>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{uf.as_p}}
-  <button type="submit">Log in</button>
-</form>
-<!--<a href="{% url 'regist' %}">regist</a>-->
+<div class="container">
+    <h1>Login</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_form uf layout="inline" %}
+        {% buttons %}
+        <button type="submit" class="btn btn-primary">Log in</button>
+        {% endbuttons %}
+    </form>
+</div>
 
-    {% endblock %}
+{% endblock %}
+
+<!-- vim: set ts=4 sw=4 et: -->

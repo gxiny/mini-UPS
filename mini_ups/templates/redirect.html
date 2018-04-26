@@ -1,16 +1,20 @@
 {% extends 'signbase.html' %}
+{% load bootstrap4 %}
 
 {% block content %}
-
 <div>
-  <h3>{{  wrong_message }} </h3>
+    <h3>{{ wrong_message }} </h3>
 </div>
 <div>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{form.as_p}}
-  <button type="submit">Redirect</button>
-</form>
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_form uf %}
+        {% buttons %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+        {% endbuttons %}
+    </form>
 </div>
 
 {% endblock %}
+
+<!-- vim: set ts=4 sw=4 et: -->
