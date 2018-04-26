@@ -34,7 +34,7 @@ def regist(request):
             form.save()
             req = ups_comm_pb2.Request()
             req.new_user = form.cleaned_data['username']
-            resp = rpc_ups(command)
+            resp = rpc_ups(req)
 
             if resp.error:
                 return render(request, 'regist.html', {'uf': form, 'wrong_message': resp.error})
