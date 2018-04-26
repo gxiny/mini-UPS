@@ -1,13 +1,15 @@
 {% extends 'signbase.html' %}
 {% block content %}
 <div>
-  <h3>{{  wrong_message }} </h3>
+    <h3>{{  wrong_message }} </h3>
 </div>
 <h1>Register</h1>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{uf.as_p}}
-  <input type="submit" value="Register"></input>
+<form method="post">
+    {% csrf_token %}
+    <table>{{uf.as_table}}</table>
+    <input type="submit" value="Register">
 </form>
-<!--<a href="{% url 'login' %}">login</a>-->
-    {% endblock %}
+{% endblock %}
+
+
+<!-- vim: set ts=4 sw=4 et: -->
