@@ -102,16 +102,13 @@ func TestPackages(t *testing.T) {
 
 	// requesting a single package
 	req := &web.Request{
-		GetPackageStatus: []int64{int64(pkg2)},
+		GetPackageDetail: proto.Int64(int64(pkg2)),
 	}
 	resp := handleRequest(testdb, req)
 	if resp.Error != nil {
 		t.Error(*resp.Error)
 	}
-	if n := len(resp.GetPackages()); n != 1 {
-		t.Fatalf("expect 1 packages, got %d", n)
-	}
-	if n := len(resp.GetPackages()[0].GetDetail().GetItems()); n != 2 {
+	if n := len(resp.GetPackageDetail().GetItems()); n != 2 {
 		t.Fatalf("expect 2 items, got %d", n)
 	}
 
@@ -137,6 +134,7 @@ func TestPackages(t *testing.T) {
 	}
 
 	err = db.WithTx(testdb, func(tx *sql.Tx) error {
+		truck.UpdateStatus(tx, db.DELIVERING)
 		return pkg1.SetLoaded(tx, truck)
 	})
 	if err != nil {
@@ -149,13 +147,15 @@ func TestPackages(t *testing.T) {
 
 	// requesting all package for a user
 	req = &web.Request{
-		GetPackages: proto.Int64(int64(user)),
+		GetPackageList: &web.PkgListReq{
+			UserId: proto.Int64(int64(user)),
+		},
 	}
 	resp = handleRequest(testdb, req)
 	if resp.Error != nil {
 		t.Error(*resp.Error)
 	}
-	if n := len(resp.GetPackages()); n != 2 {
+	if n := len(resp.GetPackageList().Packages); n != 2 {
 		t.Errorf("expect 2 packages, got %d", n)
 	}
 }

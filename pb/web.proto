@@ -7,37 +7,50 @@ message PkgDest {
 	required int64 user_id = 4;
 }
 
+message PkgListReq {
+	optional int64 user_id = 1; // if provided: get packges belongs to the user
+	repeated int64 package_ids = 2; // if provided: get packages by id
+	// if neither: get all shipments in the system
+	optional int64 offset = 3; // omitted = 0
+	optional int64 limit = 4; // omitted = unlimited
+}
+
 message Request {
         optional string new_user = 1; // string contains username
-	optional int64 get_packages = 2; // int64 contains user id
-	repeated int64 get_package_status = 3; // int64 contains package id
-	optional PkgDest change_destination = 4;
+        optional PkgListReq get_package_list = 2;
+        optional int64 get_package_detail = 3; // int64 contains package id
+        optional PkgDest change_destination = 4;
 }
 
 message Response {
-	optional int64 user_id = 1; // the created user id
-	repeated Package packages = 2;
-	optional string error = 3;
+        optional string error = 1;
+        optional int64 user_id = 2; // the created user id
+        optional PkgList package_list = 3;
+	optional PkgDetail package_detail = 4;
 }
 
-message Item {
-	required string description = 1;
-	required int32 amount = 2;
+message PkgList {
+	message Info {
+		required int64 package_id = 1;
+		required string status = 2;
+		required int64 create_time = 3;
+	}
+	required int64 total = 1;
+	repeated Info packages = 2;
 }
 
 message PkgDetail {
-	repeated Item items = 1;
+	message Item {
+		required string description = 1;
+		required int32 amount = 2;
+	}
+	message Status {
+		required string status = 1;
+		optional int64 timestamp = 2;
+	}
+        repeated Item items = 1;
 	required int32 x = 2;
 	required int32 y = 3;
-}
-
-message Package {
-	required int64 package_id = 1;
-	required PkgDetail detail = 2;
-	repeated Status status = 3;
-}
-
-message Status {
-	required string status = 1;
-	optional int64 timestamp = 2;
+	required int64 user_id = 4;
+        repeated Status status = 5;
 }
