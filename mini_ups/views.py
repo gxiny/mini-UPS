@@ -58,24 +58,30 @@ def homepage(request):
     judge = True
     return render(request, 'homepage.html', {'test': resp.packages, 'judge': judge})
 
-def searchpage(request):
-    if request.method == "POST":    
-        form = SearchForm(request.POST)
-        if form.is_valid():
-            pkg_ids = form.cleaned_data['tracking_number']
-            req = ups_comm_pb2.Request()
-            try:
-                req.get_package_status.extend(int(pkg_id) for pkg_id in pkg_ids.split(','))
-            except ValueError:
-                return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
-            resp = rpc_ups(req)
-            if resp.error:
-                return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
-            return render(request, 'homepage.html',{'test':resp.packages})
-    else :
-        form = SearchForm()
-    return render(request, 'search.html', {'form': form})   
 
+class TrackView(FormView):
+    template_name = 'track.html'
+    form_class = TrackForm
+
+    def form_valid(self, form):
+        req = ups_comm_pb2.Request()
+        req.get_package_status.extend(form.cleaned_data['pkgids'])
+        resp = rpc_ups(req)
+
+        if resp.error:
+            form.add_error(None, resp.error)
+            return self.form_invalid(form)
+        return self.render_to_response(self.get_context_data(results=resp.packages))
+
+    def get(self, request, *args, **kwargs):
+        q = request.GET.get('q')
+        if not q:
+            return super().get(request, *args, **kwargs)
+        form = self.get_form_class()({'pkgids': q})
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 @login_required    
 def Redirectpage(request,package_id) :
