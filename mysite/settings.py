@@ -32,6 +32,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split()
 
 INSTALLED_APPS = [
     'mini_ups',
+    'bootstrap4',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
