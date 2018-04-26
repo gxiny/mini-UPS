@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -83,27 +84,27 @@ class TrackView(FormView):
         else:
             return self.form_invalid(form)
 
-@login_required    
-def Redirectpage(request,package_id) :
-    if request.method == "POST":    
-        form = RedirectForm(request.POST)
-        if form.is_valid():
-            x = form.cleaned_data['x']
-            y = form.cleaned_data['y']
-            ups_id = UpsId.objects.get(user=request.user)
-            req = ups_comm_pb2.Request()
-            command = req.change_destination
-            command.user_id = ups_id.value
-            command.package_id = int(package_id)
-            command.x = x
-            command.y = y
-            resp = rpc_ups(req)
 
-            if resp.error:
-                return render(request, 'redirect.html', {'form': form,'wrong_message': resp.error})
-            return redirect('/home/')
-    else :
-        form = RedirectForm()
-    return render(request, 'redirect.html', {'form': form})
-                  
+class RedirectView(LoginRequiredMixin, FormView):
+    template_name = 'redirect.html'
+    form_class = RedirectForm
+    success_url = reverse_lazy('homepage')
+
+    def form_valid(self, form):
+        x = form.cleaned_data['x']
+        y = form.cleaned_data['y']
+        ups_id = UpsId.objects.get(user=self.request.user)
+        req = ups_comm_pb2.Request()
+        command = req.change_destination
+        command.user_id = ups_id.value
+        command.package_id = int(self.kwargs['package_id'])
+        command.x = x
+        command.y = y
+        resp = rpc_ups(req)
+
+        if resp.error:
+            form.add_error(None, resp.error)
+            return self.form_invalid(form)
+        return super().form_valid(form)
+
 # vim: ts=4:sw=4:et

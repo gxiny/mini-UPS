@@ -11,5 +11,5 @@ urlpatterns = [
     path('home/', views.homepage, name='homepage'),
     path('track/', views.TrackView.as_view(), name='track'),
     path('ups/',views.ups, name='ups'),
-    path('redirect/<int:package_id>',views.Redirectpage, name='Redirectpage'),
+    path('redirect/<int:package_id>', views.RedirectView.as_view(), name='Redirectpage'),
 ]

@@ -2,10 +2,7 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div>
-    <h3>{{ wrong_message }} </h3>
-</div>
-<div>
+<div class="container">
     <form method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
@@ -17,4 +14,4 @@
 
 {% endblock %}
 
-<!-- vim: set ts=4 sw=4 et: -->
+{# vim: set ts=4 sw=4 et: #}

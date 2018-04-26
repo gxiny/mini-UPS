@@ -19,6 +19,7 @@ class TrackForm(forms.Form):
             raise ValidationError(errors)
         return cleaned
 
+
 class RedirectForm(forms.Form):
     #tracking_number = forms.CharField()
     x = forms.IntegerField()
