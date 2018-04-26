@@ -53,6 +53,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'mysite.urls'
 LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'homepage'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
