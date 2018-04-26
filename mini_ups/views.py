@@ -24,11 +24,8 @@ def rpc_ups(request):
 
 # Create your views here.
 
-def ups(request) :
-    if request.user.is_active:
-        print(request.user)
-        return redirect('/home/')  
-    return render (request,'ups.html')
+def index(request):
+    return render(request,'index.html')
 
 
 class RegisterView(FormView):
