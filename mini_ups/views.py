@@ -55,8 +55,8 @@ def homepage(request):
     req = ups_comm_pb2.Request()
     req.get_packages = ups_id.value
     resp = rpc_ups(req)
-    judge = True   
-    return render (request,'homepage.html',{'username': request.user.username,'test':resp.packages,'user_id':ups_id.value,'judge':judge})
+    judge = True
+    return render(request, 'homepage.html', {'test': resp.packages, 'judge': judge})
 
 def searchpage(request):
     if request.method == "POST":    

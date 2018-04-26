@@ -1,0 +1,11 @@
+{% for package in package_list %}
+<p>
+<b>Package</b>
+{% if judge %}
+<a href="{% url 'Redirectpage' package_id=package.package_id %}" class="btn btn-default">Redirect</a>
+{% endif %}
+</p>
+{% include "pkg_detail.html" %}
+{% endfor %}
+
+{# vim: set ft=htmldjango ts=4 sw=4 et: #}

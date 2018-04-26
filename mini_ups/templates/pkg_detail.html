@@ -1,0 +1,36 @@
+<table class="table">
+    <tr>
+        <td>  tracking_number: </td>
+        <td>  {{package.package_id }}    </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td> description: </td>
+        {% for item in package.detail.items %}
+        <td> {{item.description}} </td>
+        <td> amount: {{item.amount}}</td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <td> destination: </td>
+        <td> x = {{package.detail.x}} </td>
+        <td> y = {{package.detail.y}} </td>
+    </tr>
+    <tr>
+        <td> status: </td>
+        <td></td>
+        <td></td>
+    </tr>
+    {% for status in package.status %}
+    <tr>
+        <td></td>
+        <td > {{ status.status   }} </td>
+        {%if status.timestamp is not 0%}
+        {% load my_tag %}
+        <td > {{ status.timestamp|get_time}} </td>
+        {%endif%}
+    </tr>
+    {% endfor %}
+</table>
+
+{# vim: set ft=htmldjango ts=4 sw=4 et: #}
