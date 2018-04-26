@@ -3,22 +3,20 @@
 
 {% block content %}
 
-<div class="container">
-    {% if results %}
-    <h1>Track results</h1>
-    {% include "pkg_list.html" with package_list=results %}
-    <h2>Track more packages</h2>
-    {% else %}
-    <h1>Track Packages</h1>
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        {% bootstrap_form form layout="inline" %}
-        {% buttons %}
-        <button type="submit" class="btn btn-primary">Submit</button>
-        {% endbuttons %}
-    </form>
-</div>
+{% if results %}
+<h1 class>Track results</h1>
+{% include "pkg_list.html" with package_list=results %}
+<h2>Track more packages</h2>
+{% else %}
+<h1 class>Track Packages</h1>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout="inline" %}
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+    {% endbuttons %}
+</form>
 
 {% endblock %}
 

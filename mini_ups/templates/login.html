@@ -2,16 +2,14 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div class="container">
-    <h1>Login</h1>
-    <form method="post">
-        {% csrf_token %}
-        {% bootstrap_form form layout="inline" %}
-        {% buttons %}
-        <button type="submit" class="btn btn-primary">Log in</button>
-        {% endbuttons %}
-    </form>
-</div>
+<h1>Login</h1>
+<form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout="inline" %}
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">Log in</button>
+    {% endbuttons %}
+</form>
 {% endblock %}
 
 {# vim: set ts=4 sw=4 et: #}

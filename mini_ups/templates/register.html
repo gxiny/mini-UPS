@@ -2,16 +2,14 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div class="container">
-    <h1>Register</h1>
-    <form method="post">
-        {% csrf_token %}
-        {% bootstrap_form form layout="inline" %}
-        {% buttons %}
-        <button type="submit" class="btn btn-primary">Register</button>
-        {% endbuttons %}
-    </form>
-</div>
+<h1>Register</h1>
+<form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout="inline" %}
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">Register</button>
+    {% endbuttons %}
+</form>
 {% endblock %}
 
 
