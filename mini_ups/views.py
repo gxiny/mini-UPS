@@ -19,10 +19,6 @@ def rpc_ups(request):
     return rpc(UPS_ADDRESS, request, ups_comm_pb2.Response())
 
 # Create your views here.
-class UserForm(forms.Form):
-    username = forms.CharField(label = 'username',max_length=50)
-    #email = forms.CharField(label = 'email',max_length=50)
-    password = forms.CharField(label = 'password',max_length=50,widget=forms.PasswordInput())
 
 def ups(request) :
     if request.user.is_active:
@@ -52,33 +48,6 @@ def regist(request):
     else:
         form = SignUpForm()
     return render(request,'regist.html', {'uf':form})
-
-def signin(request):
-    if request.user is not None:
-        if request.user.is_active:
-            login(request, request.user,backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('/home/')
-            
-    if request.method == 'POST':
-        uf = UserForm(request.POST)
-        if uf.is_valid():
-            #get username and password
-            username = uf.cleaned_data['username']
-            password = uf.cleaned_data['password']
-        username = request.POST['username']
-        raw_password = request.POST['password']
-        user = authenticate(username=username, password=raw_password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                return redirect('/home/')
-            else:
-                return render(request,'login.html',{'uf':uf,'wrong_message':wrong_user})
-        else:
-            return render(request,'login.html',{'uf':uf,'wrong_message':wrong_login})                    
-    else:
-        uf = UserForm()
-    return render (request,'login.html',{'uf':uf})
 
 
 def signout(request):

@@ -1,13 +1,15 @@
-from django.conf.urls import url
+from django.urls import path
+from django.contrib.auth import views as auth_views
+
 from . import views
 
 
 urlpatterns = [
-    url(r'^login/$', views.signin,name='login'),
-    url(r'^regist/$', views.regist,name='regist'),
-    url(r'^logout/$',views.signout,name='logout'),
-    url(r'^home/$', views.homepage, name='homepage'),
-    url(r'^search/$', views.searchpage, name='searchpage'),
-    url(r'^ups/$',views.ups, name='ups'),
-    url(r'^redirect/(?P<package_id>\d+)$',views.Redirectpage, name='Redirectpage'),
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('regist/', views.regist,name='regist'),
+    path('logout/',views.signout,name='logout'),
+    path('home/', views.homepage, name='homepage'),
+    path('search/', views.searchpage, name='searchpage'),
+    path('ups/',views.ups, name='ups'),
+    path('redirect/<int:package_id>',views.Redirectpage, name='Redirectpage'),
 ]

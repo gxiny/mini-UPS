@@ -2,22 +2,16 @@
 {% load bootstrap4 %}
 
 {% block content %}
-{% if wrong_message %}
-<div>
-    <h3>{{  wrong_message }} </h3>
-</div>
-{% endif %}
 <div class="container">
     <h1>Login</h1>
     <form method="post">
         {% csrf_token %}
-        {% bootstrap_form uf layout="inline" %}
+        {% bootstrap_form form layout="inline" %}
         {% buttons %}
         <button type="submit" class="btn btn-primary">Log in</button>
         {% endbuttons %}
     </form>
 </div>
-
 {% endblock %}
 
 <!-- vim: set ts=4 sw=4 et: -->
