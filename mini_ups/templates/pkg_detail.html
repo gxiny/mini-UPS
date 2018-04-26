@@ -1,36 +1,44 @@
-<table class="table">
-    <tr>
-        <td>  tracking_number: </td>
-        <td>  {{package.package_id }}    </td>
-        <td></td>
-    </tr>
-    <tr>
-        <td> description: </td>
-        {% for item in package.detail.items %}
-        <td> {{item.description}} </td>
-        <td> amount: {{item.amount}}</td>
+{% load my_tag %}
+
+<p>Package {{package_id}} will be sent to ({{package.x}}, {{package.y}}).
+{% if package.user_id == user.upsid.value %}
+<a href="{% url "Redirectpage" package_id %}">Change the destination...</a>
+{% endif %}
+</p>
+
+<h2>Shipping History</h2>
+
+<table class="table table-hover">
+    <thead>
+        <tr><th>Status</th><th>Update Time</th></tr>
+    </thead>
+    <tbody>
+        {% for status in package.status reversed %}
+        <tr>
+            <td> {{ status.status }} </td>
+            {%if status.timestamp is not 0 %}
+            <td> {{ status.timestamp|get_time}} </td>
+            {%endif%}
+        </tr>
         {% endfor %}
-    </tr>
-    <tr>
-        <td> destination: </td>
-        <td> x = {{package.detail.x}} </td>
-        <td> y = {{package.detail.y}} </td>
-    </tr>
-    <tr>
-        <td> status: </td>
-        <td></td>
-        <td></td>
-    </tr>
-    {% for status in package.status %}
-    <tr>
-        <td></td>
-        <td > {{ status.status   }} </td>
-        {%if status.timestamp is not 0%}
-        {% load my_tag %}
-        <td > {{ status.timestamp|get_time}} </td>
-        {%endif%}
-    </tr>
-    {% endfor %}
+    </tbody>
+</table>
+
+<h2>Package Detail</h2>
+
+<table class="table table-hover">
+    <thead>
+        <tr><th>#</th><th>Item</th><th>Count</th></tr>
+    </thead>
+    <tbody>
+        {% for item in package.items %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{item.description}}</td>
+            <td>{{item.amount}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 {# vim: set ft=htmldjango ts=4 sw=4 et: #}

@@ -1,11 +1,17 @@
-{% for package in package_list %}
-<p>
-<b>Package</b>
-{% if judge %}
-<a href="{% url 'Redirectpage' package_id=package.package_id %}" class="btn btn-default">Redirect</a>
-{% endif %}
-</p>
-{% include "pkg_detail.html" %}
-{% endfor %}
+{% load my_tag %}
+<table class="table table-hover">
+    <thead>
+        <tr><th>Tracking #</th><th>Creation Time</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+        {% for package in package_list %}
+        <tr>
+            <td><a href="{% url "package_detail" package.package_id %}">{{package.package_id}}</a></td>
+            <td>{{package.create_time|get_time}}</td>
+            <td>{{package.status|title}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {# vim: set ft=htmldjango ts=4 sw=4 et: #}

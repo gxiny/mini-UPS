@@ -13,5 +13,6 @@ urlpatterns = [
 
     path('packages/', views.packages, name='packages'),
     path('track/', views.TrackView.as_view(), name='track'),
-    path('redirect/<int:package_id>', views.RedirectView.as_view(), name='Redirectpage'),
+    path('track/<int:package_id>/', views.PackageDetailView.as_view(), name='package_detail'),
+    path('redirect/<int:package_id>/', views.RedirectView.as_view(), name='Redirectpage'),
 ]

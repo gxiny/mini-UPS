@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render
 from django.urls import reverse_lazy
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from . import ups_comm_pb2
@@ -45,9 +46,9 @@ class RegisterView(FormView):
 def packages(request):
     ups_id = UpsId.objects.get(user=request.user)
     req = ups_comm_pb2.Request()
-    req.get_packages = ups_id.value
+    req.get_package_list.user_id = ups_id.value
     resp = rpc_ups(req)
-    return render(request, 'packages.html', {'packages': resp.packages})
+    return render(request, 'packages.html', {'packages': resp.package_list.packages})
 
 
 class TrackView(FormView):
@@ -56,13 +57,13 @@ class TrackView(FormView):
 
     def form_valid(self, form):
         req = ups_comm_pb2.Request()
-        req.get_package_status.extend(form.cleaned_data['pkgids'])
+        req.get_package_list.package_ids.extend(form.cleaned_data['pkgids'])
         resp = rpc_ups(req)
 
         if resp.error:
             form.add_error(None, resp.error)
             return self.form_invalid(form)
-        return self.render_to_response(self.get_context_data(results=resp.packages))
+        return self.render_to_response(self.get_context_data(results=resp.package_list.packages))
 
     def get(self, request, *args, **kwargs):
         q = request.GET.get('q')
@@ -74,6 +75,17 @@ class TrackView(FormView):
         else:
             return self.form_invalid(form)
 
+class PackageDetailView(TemplateView):
+    template_name = 'package.html'
+
+    def get(self, request, *args, **kwargs):
+        package_id = self.kwargs['package_id']
+        req = ups_comm_pb2.Request()
+        req.get_package_detail = package_id
+        resp = rpc_ups(req)
+        return self.render_to_response(self.get_context_data(
+            package_id=package_id,
+            package=resp.package_detail))
 
 class RedirectView(LoginRequiredMixin, FormView):
     template_name = 'redirect.html'
