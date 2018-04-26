@@ -53,7 +53,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'mysite.urls'
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'homepage'
+LOGIN_REDIRECT_URL = 'packages'
 LOGOUT_REDIRECT_URL = 'index'
 
 TEMPLATES = [

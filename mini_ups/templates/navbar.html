@@ -9,7 +9,7 @@
         {% with url_name=request.resolver_match.url_name %}
         <div class="navbar-nav mr-auto">
             <a class="nav-item nav-link {% if url_name == "index" %}active{% endif %}" href="{% url "index" %}">Home</a>
-            <a class="nav-item nav-link {% if url_name == "track" %}active{% endif %}" href="{% url "track" %}">Track</a>
+            <a class="nav-item nav-link {% if url_name == "packages" %}active{% endif %}" href="{% url "packages" %}">My packages</a>
         </div>
         <div class="navbar-nav">
             <form action="{% url "track" %}" method="GET" class="form-inline">

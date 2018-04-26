@@ -2,7 +2,7 @@
 {% block content %}
 <h3>{{ user.username }}  Welcome!</h3>
 <h3> your ups id is: {{ user.upsid.value }}</h3>
-{% include "pkg_list.html" with package_list=test %}
+{% include "pkg_list.html" with package_list=packages %}
 {% endblock %}
 
 {# vim: set ts=4 sw=4 et: #}

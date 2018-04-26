@@ -48,13 +48,12 @@ class RegisterView(FormView):
 
 
 @login_required
-def homepage(request):
+def packages(request):
     ups_id = UpsId.objects.get(user=request.user)
     req = ups_comm_pb2.Request()
     req.get_packages = ups_id.value
     resp = rpc_ups(req)
-    judge = True
-    return render(request, 'homepage.html', {'test': resp.packages, 'judge': judge})
+    return render(request, 'packages.html', {'packages': resp.packages})
 
 
 class TrackView(FormView):
@@ -85,7 +84,7 @@ class TrackView(FormView):
 class RedirectView(LoginRequiredMixin, FormView):
     template_name = 'redirect.html'
     form_class = RedirectForm
-    success_url = reverse_lazy('homepage')
+    success_url = reverse_lazy('packages')
 
     def form_valid(self, form):
         x = form.cleaned_data['x']
