@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
 from django import forms
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
 
 from . import ups_comm_pb2
 from .forms import *
@@ -27,28 +29,29 @@ def ups(request) :
         return redirect('/home/')  
     return render (request,'ups.html')
 
-@transaction.atomic
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            req = ups_comm_pb2.Request()
-            req.new_user = form.cleaned_data['username']
-            resp = rpc_ups(req)
 
-            if resp.error:
-                return render(request, 'register.html', {'uf': form, 'wrong_message': resp.error})
+class RegisterView(FormView):
+    template_name = 'register.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
 
-            form.save()
-            user_id = user_id_recv(
-                username = form.cleaned_data['username'],
-                user_id_recv = resp.user_id,
-            )
-            user_id.save()
-            return redirect('/login/')        
-    else:
-        form = UserCreationForm()
-    return render(request,'register.html', {'uf':form})
+    @transaction.atomic
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        req = ups_comm_pb2.Request()
+        req.new_user = username
+        resp = rpc_ups(req)
+
+        if resp.error:
+            form.add_error(None, resp.error)
+            return self.form_invalid(form)
+        form.save()
+        user_id = user_id_recv(
+            username = username,
+            user_id_recv = resp.user_id,
+        )
+        user_id.save()
+        return super().form_valid(form)
 
 
 def signout(request):

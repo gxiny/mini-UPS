@@ -2,14 +2,11 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div>
-    <h3>{{ wrong_message }} </h3>
-</div>
 <div class="container">
     <h1>Register</h1>
     <form method="post">
         {% csrf_token %}
-        {% bootstrap_form uf layout="inline" %}
+        {% bootstrap_form form layout="inline" %}
         {% buttons %}
         <button type="submit" class="btn btn-primary">Register</button>
         {% endbuttons %}
