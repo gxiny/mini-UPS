@@ -9,12 +9,17 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
+import os
+
 from . import ups_comm_pb2
 from .forms import *
 from .models import *
 from .rpc import rpc
 
-UPS_ADDRESS = ('vcm-3878.vm.duke.edu', 8080)
+UPS_ADDRESS = (
+    os.getenv('UPS_HOST', 'localhost'),
+    int(os.getenv('UPS_PORT', '8080')),
+)
 
 def rpc_ups(request):
     return rpc(UPS_ADDRESS, request, ups_comm_pb2.Response())
