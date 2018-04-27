@@ -2,6 +2,14 @@ from django import forms
 from django.core.exceptions import ValidationError
 from .models import *
 
+class UserUpdateForm(forms.ModelForm):
+    upsid = forms.IntegerField(label="UPS ID", widget=forms.TextInput, disabled=True)
+    class Meta:
+        model = User
+        fields = ('username', 'upsid', 'email', 'first_name', 'last_name')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 class TrackForm(forms.Form):
     pkgids = forms.CharField(label="Tracking numbers (one per line)", widget=forms.Textarea)

@@ -21,7 +21,7 @@
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                     {% if user.is_authenticated %}
                     <span class="dropdown-item-text">UPS ID: {{user.upsid.value}}</span>
-                    <a class="dropdown-item" href="#">Account Settings</a>
+                    <a class="dropdown-item" href="{% url "profile" %}">Account Settings</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{% url "logout" %}">Logout</a>
                     {% else %}

@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
 
 from . import ups_comm_pb2
 from .forms import *
@@ -40,6 +41,20 @@ class RegisterView(FormView):
         user = form.save()
         UpsId.objects.create(user=user, value=resp.user_id)
         return super().form_valid(form)
+
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    template_name = 'profile.html'
+    form_class = UserUpdateForm
+    success_url = reverse_lazy('profile')
+
+    def get_initial(self):
+        user = self.request.user
+        return {'upsid': user.upsid.value}
+
+    def get_object(self, queryset=None):
+        return self.request.user
 
 
 @login_required
