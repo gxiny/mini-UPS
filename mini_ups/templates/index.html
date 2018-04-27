@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
   
 {% block content %}
-Welcome to ups main page
+<p>Welcome to ups main page.</p>
+
+<p>We have processed {{package_list.paginator.count}} shipments.</p>
+{% include "pkg_list.html" %}
 {% endblock %}

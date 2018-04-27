@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
@@ -20,8 +21,35 @@ def rpc_ups(request):
 
 # Create your views here.
 
+class PagedPkgList:
+    def __init__(self, upsid=None):
+        self.req = req = ups_comm_pb2.Request()
+        self.cmd = cmd = req.get_package_list
+        if upsid is not None:
+            cmd.user_id = upsid
+
+    def count(self):
+        self.cmd.offset = 0
+        self.cmd.limit = 0
+        resp = rpc_ups(self.req)
+        return resp.package_list.total
+
+    def __getitem__(self, i):
+        if not isinstance(i, slice):
+            raise TypeError
+        if i.step not in (None, 1):
+            raise ValueError
+        self.cmd.offset = i.start
+        self.cmd.limit = i.stop - i.start
+        resp = rpc_ups(self.req)
+        return resp.package_list.packages
+
+PAGE_SIZE = 10
+
 def index(request):
-    return render(request, 'index.html')
+    page = request.GET.get('page')
+    paginator = Paginator(PagedPkgList(), PAGE_SIZE)
+    return render(request, 'index.html', {'package_list': paginator.get_page(page)})
 
 
 class RegisterView(FormView):
@@ -60,10 +88,9 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 @login_required
 def packages(request):
     ups_id = UpsId.objects.get(user=request.user)
-    req = ups_comm_pb2.Request()
-    req.get_package_list.user_id = ups_id.value
-    resp = rpc_ups(req)
-    return render(request, 'packages.html', {'packages': resp.package_list.packages})
+    page = request.GET.get('page')
+    paginator = Paginator(PagedPkgList(upsid=ups_id.value), PAGE_SIZE)
+    return render(request, 'packages.html', {'packages': paginator.get_page(page)})
 
 
 class TrackView(FormView):
