@@ -50,7 +50,7 @@ func handleGetPackageList(database *sql.DB, req *web.PkgListReq) (resp *web.Resp
 		PackageList: new(web.PkgList),
 	}
 	const (
-		pre = `SELECT id, create_time, load_time, deliver_time, truck_status FROM package_view WHERE `
+		pre = `SELECT id, create_time, load_time, deliver_time, truck_status FROM package_view `
 		post = ` ORDER BY create_time DESC LIMIT $1 OFFSET $2`
 	)
 	var limit sql.NullInt64
@@ -65,7 +65,7 @@ func handleGetPackageList(database *sql.DB, req *web.PkgListReq) (resp *web.Resp
 	if len(req.PackageIds) > 0 {
 		resp.PackageList.Total = proto.Int64(int64(len(req.PackageIds)))
 		var stmt *sql.Stmt
-		stmt, err = database.Prepare(pre + `id = $3` + post)
+		stmt, err = database.Prepare(pre + `WHERE id = $3` + post)
 		if err != nil {
 			return
 		}
@@ -87,7 +87,7 @@ func handleGetPackageList(database *sql.DB, req *web.PkgListReq) (resp *web.Resp
 		)
 		if req.UserId != nil {
 			queryTotal = database.QueryRow(`SELECT COUNT(*) FROM package WHERE user_id = $1`, *req.UserId)
-			query = pre + `user_id = $3` + post
+			query = pre + `WHERE user_id = $3` + post
 			args = append(args, *req.UserId)
 		} else {
 			queryTotal = database.QueryRow(`SELECT COUNT(*) FROM package`)
