@@ -10,8 +10,10 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	_ "github.com/lib/pq"
 	"gitlab.oit.duke.edu/rz78/ups/server"
+	"gitlab.oit.duke.edu/rz78/ups/pb/ups"
 )
 
 var (
@@ -21,6 +23,7 @@ var (
 	amzAddr    = flag.String("amz", ":2333", "amz server address (for sending)")
 	initTrucks = flag.Int("trucks", 10, "number of trucks if connecting to a new world")
 	forceInit  = flag.Bool("init", false, "always create a new world")
+	simSpeed   = flag.Uint("speed", 0, "simulation speed (0 = default)")
 )
 
 func main() {
@@ -49,6 +52,15 @@ func main() {
 	if err != nil {
 		log.Println(err)
 		return
+	}
+	if *simSpeed != 0 {
+		err = s.WriteWorld(&ups.Commands{
+			SimSpeed: proto.Uint32(uint32(*simSpeed)),
+		})
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	s.Start(*listenAddr)
