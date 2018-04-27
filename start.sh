@@ -2,4 +2,4 @@
 
 ./manage.py migrate && \
 ./manage.py collectstatic --no-input && \
-./start.py
+exec ./start.py
