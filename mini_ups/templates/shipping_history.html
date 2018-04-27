@@ -7,10 +7,8 @@
     <tbody>
         {% for status in package.status reversed %}
         <tr>
-            <td> {{ status.status|capfirst }} </td>
-            {%if status.timestamp is not 0 %}
-            <td> {{ status.timestamp|get_time }} </td>
-            {%endif%}
+            <td>{{ status.status|capfirst }}</td>
+            <td>{%if status.timestamp %}{{ status.timestamp|get_time }}{%endif%}</td>
         </tr>
         {% endfor %}
     </tbody>
