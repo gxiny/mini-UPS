@@ -32,7 +32,7 @@ services:
         -db 'host=db dbname=ups_server user=ups sslmode=disable'
         -l ':8080'
     depends_on:
-      - db
+      - ups
   django:
     build: ./frontend
     image: ups/frontend
