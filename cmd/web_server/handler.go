@@ -50,7 +50,7 @@ func handleGetPackageList(database *sql.DB, req *web.PkgListReq) (resp *web.Resp
 		PackageList: new(web.PkgList),
 	}
 	const (
-		pre = `SELECT id, create_time, load_time, deliver_time, truck_status FROM package_view `
+		pre  = `SELECT id, create_time, load_time, deliver_time, truck_status FROM package_view `
 		post = ` ORDER BY create_time DESC LIMIT $1 OFFSET $2`
 	)
 	var limit sql.NullInt64
@@ -83,7 +83,7 @@ func handleGetPackageList(database *sql.DB, req *web.PkgListReq) (resp *web.Resp
 		var queryTotal *sql.Row
 		var (
 			query string
-			args = []interface{}{limit, offset, nil}[:2]
+			args  = []interface{}{limit, offset, nil}[:2]
 		)
 		if req.UserId != nil {
 			queryTotal = database.QueryRow(`SELECT COUNT(*) FROM package WHERE user_id = $1`, *req.UserId)
@@ -118,7 +118,7 @@ func handleGetPackageList(database *sql.DB, req *web.PkgListReq) (resp *web.Resp
 
 func handleGetPackageDetail(database *sql.DB, pkgId int64) (resp *web.Response, err error) {
 	resp = new(web.Response)
-	const query = `SELECT user_id, items, destination, create_time, load_time, deliver_time, truck_status `+
+	const query = `SELECT user_id, items, destination, create_time, load_time, deliver_time, truck_status ` +
 		`FROM package_view WHERE id = $1`
 	var (
 		userId sql.NullInt64
@@ -131,9 +131,9 @@ func handleGetPackageDetail(database *sql.DB, pkgId int64) (resp *web.Response, 
 	)
 	err = database.QueryRow(query, pkgId).Scan(&userId, &items, &dest, &ctime, &ltime, &dtime, &status)
 	resp.PackageDetail = &web.PkgDetail{
-		Items: convertItems(&items),
-		X: &dest.X,
-		Y: &dest.Y,
+		Items:  convertItems(&items),
+		X:      &dest.X,
+		Y:      &dest.Y,
 		UserId: &userId.Int64,
 		Status: convertStatus(ctime, ltime, dtime, status),
 	}
@@ -212,8 +212,8 @@ func appendPkgInfo(resp *web.Response, sc scanner) (err error) {
 		s = "created"
 	}
 	pkg := &web.PkgList_Info{
-		PackageId: &pkgId,
-		Status: &s,
+		PackageId:  &pkgId,
+		Status:     &s,
 		CreateTime: &ctime,
 	}
 	resp.PackageList.Packages = append(resp.PackageList.Packages, pkg)

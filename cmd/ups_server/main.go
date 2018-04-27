@@ -12,8 +12,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	_ "github.com/lib/pq"
-	"gitlab.oit.duke.edu/rz78/ups/server"
 	"gitlab.oit.duke.edu/rz78/ups/pb/ups"
+	"gitlab.oit.duke.edu/rz78/ups/server"
 )
 
 var (
