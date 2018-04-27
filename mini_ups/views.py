@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
@@ -91,6 +91,9 @@ class RedirectView(LoginRequiredMixin, FormView):
     template_name = 'redirect.html'
     form_class = RedirectForm
     success_url = reverse_lazy('packages')
+
+    def get_success_url(self):
+        return reverse('package_detail', kwargs={'package_id': self.kwargs['package_id']})
 
     def form_valid(self, form):
         x = form.cleaned_data['x']

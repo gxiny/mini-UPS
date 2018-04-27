@@ -2,9 +2,15 @@
 {% load bootstrap4 %}
 
 {% block content %}
+<h1>Redirect Package {{view.kwargs.package_id}}</h1>
+<p>Where do you want your package to go?</p>
 <form method="post">
     {% csrf_token %}
-    {% bootstrap_form form %}
+    {% bootstrap_form_errors form %}
+    <div class="form-row">
+        <div class="col">{% bootstrap_field form.x show_label=False %}</div>
+        <div class="col">{% bootstrap_field form.y show_label=False %}</div>
+    </div>
     {% buttons %}
     <button type="submit" class="btn btn-primary">Submit</button>
     {% endbuttons %}
