@@ -71,7 +71,7 @@ func handleGetPackageList(database *sql.DB, req *web.PkgListReq) (resp *web.Resp
 		}
 		defer stmt.Close()
 		for _, pkgId := range req.PackageIds {
-			err = appendPkgInfo(resp, stmt.QueryRow(limit, offset, pkgId))
+			err = appendPkgInfo(resp, stmt.QueryRow(nil, nil, pkgId))
 			if err == sql.ErrNoRows {
 				err = fmt.Errorf("invalid package id: %v", pkgId)
 			}
