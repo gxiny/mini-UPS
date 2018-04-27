@@ -2,7 +2,7 @@ version: '2'
 
 services:
   db:
-    image: postgres:9.5
+    image: postgres:9.5-alpine
     environment:
       POSTGRES_USER: ups
     volumes:
@@ -23,6 +23,7 @@ services:
     depends_on:
       - db
   web:
+    build: ./backend
     image: ups/backend
     user: nobody
     expose:
