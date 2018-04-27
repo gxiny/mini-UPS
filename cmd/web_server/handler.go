@@ -99,15 +99,17 @@ func handleGetPackageList(database *sql.DB, req *web.PkgListReq) (resp *web.Resp
 			return
 		}
 		resp.PackageList.Total = &total
-		rows, err = database.Query(query, args...)
-		if err != nil {
-			return
-		}
-		defer rows.Close()
-		for rows.Next() {
-			err = appendPkgInfo(resp, rows)
+		if limit.Valid && limit.Int64 > 0 {
+			rows, err = database.Query(query, args...)
 			if err != nil {
 				return
+			}
+			defer rows.Close()
+			for rows.Next() {
+				err = appendPkgInfo(resp, rows)
+				if err != nil {
+					return
+				}
 			}
 		}
 	}
