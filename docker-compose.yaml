@@ -1,0 +1,68 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:9.5
+    environment:
+      POSTGRES_USER: ups
+    volumes:
+      - ./dbinit.d:/docker-entrypoint-initdb.d:ro
+  ups:
+    build: ./backend
+    image: ups/backend
+    user: nobody
+    ports:
+      - "23333:23333"
+    command: >
+      ups_server
+        -amz 'vcm-3878.vm.duke.edu:2333'
+        -db 'host=db dbname=ups_server user=ups sslmode=disable'
+        -sim 'vcm-3878.vm.duke.edu:12345'
+        -trucks 2
+    stop_signal: SIGINT # the server catches SIGINT for termination
+    depends_on:
+      - db
+  web:
+    image: ups/backend
+    user: nobody
+    expose:
+      - "8080"
+    command: >
+      web_server
+        -db 'host=db dbname=ups_server user=ups sslmode=disable'
+        -l ':8080'
+    depends_on:
+      - db
+  django:
+    build: ./frontend
+    image: ups/frontend
+    user: nobody
+    volumes:
+      - django-static:/static
+#     - ./frontend:/code:ro # use this line for development convenience
+    env_file:
+      - secret.txt
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ups_django
+      POSTGRES_USER: ups
+      STATIC_ROOT: /static/
+#     DJANGO_DEBUG: Y # comment out this line to disable debugging
+      UPS_HOST: web
+      UPS_PORT: "8080"
+    depends_on:
+      - web
+  nginx:
+    image: nginx
+    ports:
+      - "8000:8000"
+    volumes:
+      - django-static:/static:ro
+      - ./nginx.conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - django
+
+volumes:
+  django-static:
+
+# vim: ts=2:sw=2:et
