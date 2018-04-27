@@ -1,149 +1,162 @@
-from django.shortcuts import render, redirect
-from django import forms
-from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 from django.db import transaction
+from django.shortcuts import render
+from django.urls import reverse, reverse_lazy
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView, UpdateView
+
+import os
 
 from . import ups_comm_pb2
 from .forms import *
 from .models import *
 from .rpc import rpc
 
-wrong_login = "Your username or password is wrong"
-wrong_user = "The user is not alive"
-wrong_format = "should be number"
-
-UPS_ADDRESS = ('vcm-3878.vm.duke.edu', 8080)
+UPS_ADDRESS = (
+    os.getenv('UPS_HOST', 'localhost'),
+    int(os.getenv('UPS_PORT', '8080')),
+)
 
 def rpc_ups(request):
     return rpc(UPS_ADDRESS, request, ups_comm_pb2.Response())
 
 # Create your views here.
-class UserForm(forms.Form):
-    username = forms.CharField(label = 'username',max_length=50)
-    #email = forms.CharField(label = 'email',max_length=50)
-    password = forms.CharField(label = 'password',max_length=50,widget=forms.PasswordInput())
 
-def ups(request) :
-    if request.user.is_active:
-        print(request.user)
-        return redirect('/home/')  
-    return render (request,'ups.html')
+class PagedPkgList:
+    def __init__(self, upsid=None):
+        self.req = req = ups_comm_pb2.Request()
+        self.cmd = cmd = req.get_package_list
+        if upsid is not None:
+            cmd.user_id = upsid
 
-@transaction.atomic
-def regist(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            req = ups_comm_pb2.Request()
-            req.new_user = form.cleaned_data['username']
-            resp = rpc_ups(command)
+    def count(self):
+        self.cmd.offset = 0
+        self.cmd.limit = 0
+        resp = rpc_ups(self.req)
+        return resp.package_list.total
 
-            if resp.error:
-                return render(request, 'regist.html', {'uf': form, 'wrong_message': resp.error})
+    def __getitem__(self, i):
+        if not isinstance(i, slice):
+            raise TypeError
+        if i.step not in (None, 1):
+            raise ValueError
+        self.cmd.offset = i.start
+        self.cmd.limit = i.stop - i.start
+        resp = rpc_ups(self.req)
+        return resp.package_list.packages
 
-            user_id = user_id_recv(
-                username = username,
-                user_id_recv = resp.user_id,
-            )
-            user_id.save()
-            return redirect('/login/')        
-    else:
-        form = SignUpForm()
-    return render(request,'regist.html', {'uf':form})
+PAGE_SIZE = 10
 
-def signin(request):
-    if request.user is not None:
-        if request.user.is_active:
-            login(request, request.user,backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('/home/')
-            
-    if request.method == 'POST':
-        uf = UserForm(request.POST)
-        if uf.is_valid():
-            #get username and password
-            username = uf.cleaned_data['username']
-            password = uf.cleaned_data['password']
-        username = request.POST['username']
-        raw_password = request.POST['password']
-        user = authenticate(username=username, password=raw_password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                return redirect('/home/')
-            else:
-                return render(request,'login.html',{'uf':uf,'wrong_message':wrong_user})
-        else:
-            return render(request,'login.html',{'uf':uf,'wrong_message':wrong_login})                    
-    else:
-        uf = UserForm()
-    return render (request,'login.html',{'uf':uf})
+def index(request):
+    page = request.GET.get('page')
+    paginator = Paginator(PagedPkgList(), PAGE_SIZE)
+    return render(request, 'index.html', {'package_list': paginator.get_page(page)})
 
 
-def signout(request):
-    logout(request)
-    return render(request,'logout.html')
+class RegisterView(FormView):
+    template_name = 'register.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+
+    @transaction.atomic
+    def form_valid(self, form):
+        req = ups_comm_pb2.Request()
+        req.new_user = form.cleaned_data['username']
+        resp = rpc_ups(req)
+
+        if resp.error:
+            form.add_error(None, resp.error)
+            return self.form_invalid(form)
+        user = form.save()
+        UpsId.objects.create(user=user, value=resp.user_id)
+        return super().form_valid(form)
+
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    template_name = 'profile.html'
+    form_class = UserUpdateForm
+    success_url = reverse_lazy('profile')
+
+    def get_initial(self):
+        user = self.request.user
+        return {'upsid': user.upsid.value}
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
 
 @login_required
-def homepage(request):
-    username = request.user.username
-    if user_id_recv.objects.get(username = username): 
-        user_id = user_id_recv.objects.get(username = username)
-    else: 
-        return redirect('/login/')
-    #print(user_id.user_id_recv)
-    
-    command = ups_comm_pb2.Request()
-    command.get_packages = user_id.user_id_recv
-    resp = rpc_ups(command)
-    test = (resp.packages) 
-    #print(test)
-    judge = True   
-    return render (request,'homepage.html',{'username':username,'test':resp.packages,'user_id':user_id.user_id_recv,'judge':judge})
+def packages(request):
+    ups_id = UpsId.objects.get(user=request.user)
+    page = request.GET.get('page')
+    paginator = Paginator(PagedPkgList(upsid=ups_id.value), PAGE_SIZE)
+    return render(request, 'packages.html', {'packages': paginator.get_page(page)})
 
-def searchpage(request):
-    if request.method == "POST":    
-        form = SearchForm(request.POST)
+
+class TrackView(FormView):
+    template_name = 'track.html'
+    form_class = TrackForm
+
+    def form_valid(self, form):
+        req = ups_comm_pb2.Request()
+        req.get_package_list.package_ids.extend(form.cleaned_data['pkgids'])
+        resp = rpc_ups(req)
+
+        if resp.error:
+            form.add_error(None, resp.error)
+            return self.form_invalid(form)
+        return self.render_to_response(self.get_context_data(results=resp.package_list.packages))
+
+    def get(self, request, *args, **kwargs):
+        q = request.GET.get('q')
+        if not q:
+            return super().get(request, *args, **kwargs)
+        form = self.get_form_class()({'pkgids': q})
         if form.is_valid():
-            pkg_ids = form.cleaned_data['tracking_number']
-            req = ups_comm_pb2.Request()
-            try:
-                req.get_package_status.extend(int(pkg_id) for pkg_id in pkg_ids.split(','))
-            except ValueError:
-                return render(request, 'search.html', {'form': form,'wrong_message': wrong_format})
-            resp = rpc_ups(req)
-            if resp.error:
-                return render(request, 'search.html', {'wrong_message': resp.error, 'form':form})    
-            return render(request, 'homepage.html',{'test':resp.packages})
-    else :
-        form = SearchForm()
-    return render(request, 'search.html', {'form': form})   
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
+class PackageDetailView(TemplateView):
+    template_name = 'package.html'
 
-@login_required    
-def Redirectpage(request,package_id) :
-    if request.method == "POST":    
-        form = RedirectForm(request.POST)
-        if form.is_valid():
-            
-            #package_id = form.cleaned_data['x']
-            x = form.cleaned_data['x']
-            y = form.cleaned_data['y']
-            username = request.user.username
-            user_id = user_id_recv.objects.get(username = username) 
-            command = ups_comm_pb2.Request() 
-            command.change_destination.user_id = user_id.user_id_recv
-            command.change_destination.package_id = int(package_id)
-            command.change_destination.x = x
-            command.change_destination.y = y 
-            resp = rpc_ups(command)
-            
-            if resp.error:
-                return render(request, 'redirect.html', {'form': form,'wrong_message': resp.error})
-            return redirect('/home/')
-    else :
-        form = RedirectForm()
-    return render(request, 'redirect.html', {'form': form})
-                  
+    def get(self, request, *args, **kwargs):
+        package_id = self.kwargs['package_id']
+        req = ups_comm_pb2.Request()
+        req.get_package_detail = package_id
+        resp = rpc_ups(req)
+        return self.render_to_response(self.get_context_data(
+            package_id=package_id,
+            package=resp.package_detail))
+
+class RedirectView(LoginRequiredMixin, FormView):
+    template_name = 'redirect.html'
+    form_class = RedirectForm
+    success_url = reverse_lazy('packages')
+
+    def get_success_url(self):
+        return reverse('package_detail', kwargs={'package_id': self.kwargs['package_id']})
+
+    def form_valid(self, form):
+        x = form.cleaned_data['x']
+        y = form.cleaned_data['y']
+        ups_id = UpsId.objects.get(user=self.request.user)
+        req = ups_comm_pb2.Request()
+        command = req.change_destination
+        command.user_id = ups_id.value
+        command.package_id = int(self.kwargs['package_id'])
+        command.x = x
+        command.y = y
+        resp = rpc_ups(req)
+
+        if resp.error:
+            form.add_error(None, resp.error)
+            return self.form_invalid(form)
+        return super().form_valid(form)
+
 # vim: ts=4:sw=4:et

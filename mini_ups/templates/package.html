@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Package {{package_id}}</h1>
+
+{% with package.status|last as laststatus %}
+<p>Package {{package_id}} {%if laststatus.status == "delivered" %}was{% else %}will be{% endif %}
+sent to ({{package.x}}, {{package.y}}).
+{% if laststatus.status != 'delivered' and laststatus.status != 'delivering' and package.user_id == user.upsid.value %}
+<a href="{% url "Redirectpage" package_id %}" class="btn btn-sm"><span class="fas fa-edit"></span> Change the destination...</a>
+{% endif %}
+{% endwith %}
+</p>
+<h2>Shipping History</h2>
+{% include "shipping_history.html" %}
+<h2>Package Detail</h2>
+{% include "pkg_detail.html" %}
+{% endblock %}
+
+{# vim: set ts=4 sw=4 et: #}

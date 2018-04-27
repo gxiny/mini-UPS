@@ -1,27 +1,39 @@
 from django import forms
-from django.forms import ModelForm,modelformset_factory
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 from .models import *
 
-
-class SignUpForm(UserCreationForm): #UserCreationForm
-    username   =  forms.CharField(max_length=50)
-    first_name = forms.CharField()
-    last_name  = forms.CharField()
-    password1  = forms.CharField(widget=forms.PasswordInput())
-    password2  = forms.CharField(widget=forms.PasswordInput())
-    email = forms.EmailField()
+class UserUpdateForm(forms.ModelForm):
+    upsid = forms.IntegerField(label="UPS ID", widget=forms.TextInput, disabled=True)
     class Meta:
         model = User
-        fields = ('username','first_name','last_name','password1', 'password2','email')
-    def __init__(self,*args, **kwargs):
-        super(SignUpForm, self).__init__(*args, **kwargs)
+        fields = ('username', 'upsid', 'email', 'first_name', 'last_name')
 
-class SearchForm(forms.Form):
-    tracking_number = forms.CharField(label="tracking_number(seperate name by ',')",widget = forms.Textarea)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+class TrackForm(forms.Form):
+    pkgids = forms.CharField(label="Tracking numbers (one per line)", widget=forms.Textarea)
+
+    def clean_pkgids(self):
+        data = self.cleaned_data['pkgids']
+        cleaned = []
+        errors = []
+        for i in data.split('\n'):
+            try:
+                x = int(i)
+                if not (-9223372036854775808 <= x <= 9223372036854775807):
+                    raise ValueError # out of int64 range
+                cleaned.append(x)
+            except ValueError:
+                errors.append("Invalid tracking number: " + i)
+        if errors:
+            raise ValidationError(errors)
+        return cleaned
+
 
 class RedirectForm(forms.Form):
     #tracking_number = forms.CharField()
     x = forms.IntegerField()
     y = forms.IntegerField()
+
+# vim: ts=4:sw=4:et

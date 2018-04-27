@@ -2,15 +2,15 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<h1>Login</h1>
+<h1>Password Change</h1>
 <form method="post">
     {% csrf_token %}
-    {% bootstrap_form form layout="inline" %}
+    {% bootstrap_form form layout="horizontal" %}
     {% buttons %}
-    <button type="submit" class="btn btn-primary">Log in</button>
-    <a class="btn" href="{% url "register" %}">New user...</a>
+    <button type="submit" class="btn btn-primary">Change my password</button>
     {% endbuttons %}
 </form>
 {% endblock %}
+
 
 {# vim: set ts=4 sw=4 et: #}

@@ -1,13 +1,21 @@
-from django.conf.urls import url
+from django.urls import path
+from django.contrib.auth import views as auth_views
+
 from . import views
 
 
 urlpatterns = [
-    url(r'^login/$', views.signin,name='login'),
-    url(r'^regist/$', views.regist,name='regist'),
-    url(r'^logout/$',views.signout,name='logout'),
-    url(r'^home/$', views.homepage, name='homepage'),
-    url(r'^search/$', views.searchpage, name='searchpage'),
-    url(r'^ups/$',views.ups, name='ups'),
-    url(r'^redirect/(?P<package_id>\d+)$',views.Redirectpage, name='Redirectpage'),
+    path('', views.index, name='index'),
+
+    path('register/', views.RegisterView.as_view(), name='register'),
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('chpass/', auth_views.PasswordChangeView.as_view(template_name='chpass.html'), name='chpass'),
+    path('chpass_done/', auth_views.PasswordChangeDoneView.as_view(template_name='chpass_done.html'), name='password_change_done'),
+    path('profile/', views.UserUpdateView.as_view(), name='profile'),
+
+    path('packages/', views.packages, name='packages'),
+    path('track/', views.TrackView.as_view(), name='track'),
+    path('track/<int:package_id>/', views.PackageDetailView.as_view(), name='package_detail'),
+    path('redirect/<int:package_id>/', views.RedirectView.as_view(), name='Redirectpage'),
 ]
