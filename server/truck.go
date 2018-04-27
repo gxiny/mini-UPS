@@ -90,10 +90,11 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 	return db.WithTx(s.db, func(tx *sql.Tx) (err error) {
 		var (
 			warehouseId int32
+			pos         db.Coord
 			status      db.TruckStatus
 		)
-		err = tx.QueryRow(`SELECT warehouse_id, status FROM truck WHERE id = $1 FOR UPDATE`,
-			truck).Scan(&warehouseId, &status)
+		err = tx.QueryRow(`SELECT warehouse_id, last_pos, status FROM truck WHERE id = $1 FOR UPDATE`,
+			truck).Scan(&warehouseId, &pos, &status)
 		switch err {
 		case nil:
 			// fine
@@ -149,6 +150,7 @@ func (s *Server) onTruckLoaded(loaded *bridge.PackagesLoaded) (err error) {
 				Y:         &dest.Y,
 			})
 		}
+		dLocs = pathPlanning(pos.X, pos.Y, dLocs)
 		err = truck.UpdateStatus(tx, db.DELIVERING)
 		if err != nil {
 			return
