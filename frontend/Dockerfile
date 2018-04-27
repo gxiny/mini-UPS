@@ -1,12 +1,15 @@
-FROM python:3
+FROM python:3-alpine
 RUN mkdir /static && chown nobody:nogroup /static
 ENV PYTHONUNBUFFERED 1
-RUN apt-get update && \
-	apt-get install -y libev-dev && \
-	rm -rf /var/lib/apt/lists/*
 WORKDIR /code
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apk add --no-cache --virtual .build-deps \
+	libc-dev \
+	libev-dev \
+	postgresql-dev \
+	gcc \
+	&& pip install --no-cache-dir -r requirements.txt \
+	&& apk del .build-deps && apk add --no-cache libev libpq
 COPY . .
 EXPOSE 8000
 CMD ["./start.sh"]
