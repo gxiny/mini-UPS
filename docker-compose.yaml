@@ -54,7 +54,7 @@ services:
     depends_on:
       - web
   nginx:
-    image: nginx:mainline-alpine-perl
+    image: nginx:mainline-alpine
     ports:
       - "8000:8000"
     volumes:
