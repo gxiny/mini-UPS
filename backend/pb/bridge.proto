@@ -1,0 +1,66 @@
+package bridge;
+
+message Item {
+	required int64 item_id = 1;
+	required string description = 2;
+	required int32 amount = 3;
+}
+
+message Package {
+	required int32 warehouse_id = 1;
+	optional int64 ups_user_id = 2;
+	required int32 x = 3;
+	required int32 y = 4;
+	repeated Item items = 5;
+}
+
+message RequestTruck {
+	required int32 warehouse_id = 1;
+	required int32 x = 2;
+	required int32 y = 3;
+}
+
+message PackagesLoaded {
+	required int32 truck_id = 1;
+	required int32 warehouse_id = 2;
+	repeated int64 package_ids = 3;
+}
+
+message ACommands {
+	optional Package package_id_req = 1;
+	optional RequestTruck truck_req = 2;
+	optional PackagesLoaded loaded = 3;
+}
+
+message ResponsePackageId {
+	required int64 package_id =1;
+	optional string error = 2;
+}
+
+message Acknowledgement {
+	required bool success = 1;
+	optional string error = 2;
+}
+
+message UResponses {
+	optional ResponsePackageId package_id = 1;
+	optional Acknowledgement ack = 2;
+}
+
+message TruckArrival {
+	required int32 truck_id = 1;
+	required int32 warehouse_id = 2;
+}
+
+message Delivery {
+	required int64 package_id = 1;
+}
+
+message UCommands {
+	optional TruckArrival arrival = 1;
+	optional Delivery delivered = 2;
+}
+
+message AResponses {
+	optional Acknowledgement ack = 1;
+}
