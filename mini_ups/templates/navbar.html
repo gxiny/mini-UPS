@@ -14,9 +14,9 @@
         <div class="navbar-nav">
             <form action="{% url "track" %}" method="GET" class="form-inline">
                 <input class="form-control mr-sm-2 bg-dark text-light" name="q" placeholder="Enter tracking number">
-                <button type="submit" class="btn btn-outline-warning my-2 my-sm-0">Track Package</button>
+                <button type="submit" class="btn btn-outline-warning my-2 my-sm-0 mr-sm-2">Track Package</button>
             </form>
-            <li class="nav-item dropdown ml-sm-2">
+            <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{user}}</a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                     {% if user.is_authenticated %}
