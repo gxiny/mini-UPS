@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+<h1>Login</h1>
+<form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout="inline" %}
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">Log in</button>
+    <a class="btn" href="{% url "register" %}">New user...</a>
+    {% endbuttons %}
+</form>
+{% endblock %}
+
+{# vim: set ts=4 sw=4 et: #}

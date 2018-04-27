@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+<h1>Password Change</h1>
+<form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout="horizontal" %}
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">Change my password</button>
+    {% endbuttons %}
+</form>
+{% endblock %}
+
+
+{# vim: set ts=4 sw=4 et: #}

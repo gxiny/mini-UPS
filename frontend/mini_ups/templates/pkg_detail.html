@@ -1,0 +1,16 @@
+<table class="table table-hover">
+    <thead>
+        <tr><th>#</th><th>Item</th><th>Count</th></tr>
+    </thead>
+    <tbody>
+        {% for item in package.items %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{item.description}}</td>
+            <td>{{item.amount}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{# vim: set ft=htmldjango ts=4 sw=4 et: #}

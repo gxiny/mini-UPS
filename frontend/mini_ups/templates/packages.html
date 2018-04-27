@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<p>Hi{% if user.first_name %}, {{ user.first_name }}{% endif %}!
+You can track your packages here.
+Click on the tracking number to see package details.
+</p>
+{% if packages %}
+{% include "pkg_list.html" with package_list=packages %}
+{% else %}
+<div class="alert alert-warning">
+    <li>You don't have any packages associated to your account.</li>
+    <li>Hint: specify your UPS ID ({{ user.upsid.value }}) when making an order.</li>
+</div>
+{% endif %}
+{% endblock %}
+
+{# vim: set ts=4 sw=4 et: #}
