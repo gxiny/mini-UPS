@@ -33,6 +33,25 @@ var PackageView = sqlObject{
 	ON package.truck_id = truck.id`,
 }
 
+// PackageIdxUser enables fast package lookup given user id.
+var PackageIdxUser = sqlObject{
+	`INDEX`, `package_idx_user`, `ON package(user_id)`,
+}
+
+// PackageIdxCtime enables fast ORDER BY create_time operations.
+var PackageIdxCtime = sqlObject{
+	`INDEX`, `package_idx_ctime`, `ON package(create_time)`,
+}
+
+// PackageIdxCtime1 enables fast warehouse selection when scheduling.
+var PackageIdxCtime1 = sqlObject{
+	`INDEX`, `package_idx_ctime_1`, `ON package(create_time) WHERE truck_id IS NULL`,
+}
+
+var PackageIdxWhId = sqlObject{
+	`INDEX`, `package_idx_whid`, `ON package(warehouse_id)`,
+}
+
 type Package int64
 
 //go:generate protoc --go_out=. package_items.proto

@@ -27,6 +27,16 @@ var TruckTable = sqlObject{
 	status truck_status NOT NULL DEFAULT 'idle'
 )`}
 
+// TruckIdxWhId enables fast truck look up given warehouse id.
+var TruckIdxWhId = sqlObject{
+	`INDEX`, `truck_idx_whid`, `ON truck(warehouse_id)`,
+}
+
+// TruckIdxStatus enables fast truck look up given status ('idle' for scheduling).
+var TruckIdxStatus = sqlObject{
+	`INDEX`, `truck_idx_status`, `ON truck(status)`,
+}
+
 type Truck int32
 
 // UpdatePos update the last-known position of a truck.

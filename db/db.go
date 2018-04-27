@@ -22,13 +22,22 @@ func (s sqlObject) DropSQL() string {
 }
 
 var allSQL = [...]sqlObject{
-	metaTable,
+	// types
 	CoordType,
+	// tables
+	metaTable,
 	UserTable,
 	truckStatusType,
 	TruckTable,
 	PackageTable,
 	PackageView,
+	// indices
+	TruckIdxWhId,
+	TruckIdxStatus,
+	PackageIdxUser,
+	PackageIdxCtime,
+	PackageIdxCtime1,
+	PackageIdxWhId,
 }
 
 // InitSchema creates all objects in the database.
