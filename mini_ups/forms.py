@@ -20,7 +20,10 @@ class TrackForm(forms.Form):
         errors = []
         for i in data.split('\n'):
             try:
-                cleaned.append(int(i))
+                x = int(i)
+                if not (-9223372036854775808 <= x <= 9223372036854775807):
+                    raise ValueError # out of int64 range
+                cleaned.append(x)
             except ValueError:
                 errors.append("Invalid tracking number: " + i)
         if errors:
