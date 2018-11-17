@@ -1,8 +1,4 @@
-# ERSS Final Project
-
-This is the submission repository of ERSS final project.
-
-Our task is to implement a simple version of
+implement a simple version of
 Useless Parcel Service (UPS).
 
 ## Configuration
